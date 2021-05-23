@@ -25,31 +25,38 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChooseExerciseActivity"
+            android:name=".ChooseLevelActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".ConversationActivity"
-            android:parentActivityName=".ChooseExerciseActivity">
+            android:parentActivityName=".ChooseLevelActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseExerciseActivity" />
+                android:value=".ChooseLevelActivity" />
         </activity>
         <activity
             android:name=".LearnVocabularyActivity"
-            android:parentActivityName=".ChooseExerciseActivity">
+            android:parentActivityName=".ChooseLevelActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseExerciseActivity" />
+                android:value=".ChooseLevelActivity" />
+        </activity>
+        <activity
+            android:name=".ChooseLessonActivity"
+            android:parentActivityName=".ChooseLevelActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ChooseLevelActivity" />
         </activity>
         <activity
             android:name=".SingleTermActivity"
             android:parentActivityName=".LearnVocabularyActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseExerciseActivity" />
+                android:value=".ChooseLevelActivity" />
         </activity>
     </application>
 

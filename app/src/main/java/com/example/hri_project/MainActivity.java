@@ -24,9 +24,6 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     private Chat greetingsChat;
     private QiChatbot qiGreetingsChatbot;
 
-    private boolean testLevel;
-
-    private Button goButton;
 
 
     @Override
@@ -36,16 +33,6 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         QiSDK.register(this, this);
 
         setContentView(R.layout.activity_main);
-
-        this.goButton = findViewById(R.id.go);
-        this.goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ObjectRecognitionExercise.class);
-                intent.putExtra("level", "HARD");
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -69,7 +56,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     @Override
     public void onRobotFocusLost() {
         // Remove on started listeners from the Chat action.
-        //greetingsChat.removeAllOnStartedListeners();
+        greetingsChat.removeAllOnStartedListeners();
     }
 
     @Override
@@ -99,22 +86,20 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
 
     private void startGreetingsChat() {
-        Future<Void> chatFuture = greetingsChat.async().run();
-
-        // Add a Lambda to the action execution.
-        chatFuture.thenConsume(future -> {
-            if (future.hasError()) {
-                Log.e("TAG", "Discussion finished with error.", future.getError());
-            }
-        });
 
         // Stop the chat when the qichatbot is done
         qiGreetingsChatbot.addOnEndedListener(endReason -> {
-            Log.i("TAG", "staring grammar activity");
-            Intent intent = new Intent(this, GrammarActivity.class);
-            intent.putExtra("level", "HARD");
-            startActivity(intent);
+            if(endReason.equals("test")) {
+                // Start test level activity
+
+            } else {
+                // Start choose level activity
+                Intent chooseLevelIntent = new Intent(this, ChooseLevelActivity.class);
+                startActivity(chooseLevelIntent);
+            }
         });
+
+        greetingsChat.async().run();
     }
 
 }

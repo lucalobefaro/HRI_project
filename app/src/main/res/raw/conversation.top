@@ -31,7 +31,6 @@ proposal: %presentation_proposal Presentati ad una persona
                         Piacere mio, a presto! ^goto(again)
 
 
-
 proposal: %directions_proposal Immagina di esserti perso, il tuo telefono è scarico e
                       devi dunque chiedere a qualche passante le indicazioni stradali
                       necessarie a raggiungere la tua destinazione

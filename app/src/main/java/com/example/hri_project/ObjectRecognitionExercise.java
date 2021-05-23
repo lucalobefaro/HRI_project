@@ -111,6 +111,7 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         QiSDK.register(this, this);
+        setContentView(R.layout.activity_object_recognition_exercise);
 
         setContentView(R.layout.activity_object_recognition_exercise);
 

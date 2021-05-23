@@ -220,20 +220,14 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
     }
 
     private void startVocabulariesChat() {
-        Future<Void> chatFuture = vocabulariesChat.async().run();
-
-        // Add a Lambda to the action execution.
-        chatFuture.thenConsume(future -> {
-            if (future.hasError()) {
-                Log.e("LearnVocabularyActivity", "event:Discussion finished with error.", future.getError());
-            }
-        });
 
         // Stop the chat when the qichatbot is done.
         qiVocabulariesChatbot.addOnEndedListener(endReason -> {
             vocabLevel = endReason.equals("vocab");
             Log.i("LearnVocabularyActivity", "Discussion finished " + vocabLevel);
         });
+
+        vocabulariesChat.async().run();
     }
 
 }

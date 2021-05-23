@@ -1,0 +1,6 @@
+topic: ~choose_level()
+
+proposal: %choose_level_proposal What is your Italian level?
+    u1:(easy) ^endDiscuss(EASY)
+    u1:(medium) ^endDiscuss(MEDIUM)
+    u1:(hard) ^endDiscuss(HARD)

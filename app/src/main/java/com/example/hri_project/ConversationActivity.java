@@ -127,14 +127,6 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
     }
 
     private void startVocabulariesChat() {
-        Future<Void> chatFuture = conversationChat.async().run();
-
-        // Add a Lambda to the action execution.
-        chatFuture.thenConsume(future -> {
-            if (future.hasError()) {
-                Log.e("ConversationActivity", "event:Discussion finished with error.", future.getError());
-            }
-        });
 
         // Stop the chat when the qichatbot is done
         qiConversationChatbot.addOnEndedListener(endReason -> {
@@ -142,5 +134,7 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
             Log.i("ConversationActivity", "" + convLevel);
 
         });
+
+        conversationChat.async().run();
     }
 }
