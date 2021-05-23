@@ -16,6 +16,7 @@
         <activity android:name=".ObjectRecognitionExercise" />
 
         <!-- android:theme="@style/Theme.HRI_project" -->
+        <activity android:name=".GrammarActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,5 +53,4 @@
         </activity>
     </application>
 
-    <uses-feature android:name="com.softbank.hardware.pepper"/>
 </manifest>

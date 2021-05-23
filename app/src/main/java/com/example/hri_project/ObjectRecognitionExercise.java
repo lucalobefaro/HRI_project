@@ -2,6 +2,7 @@ package com.example.hri_project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -109,8 +110,9 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_object_recognition_exercise);
         QiSDK.register(this, this);
+
+        setContentView(R.layout.activity_object_recognition_exercise);
 
         // Get the view elements
         imageView = findViewById(R.id.objectImage);
@@ -231,6 +233,8 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
 
 
     private void updateInterface() {
+
+        Log.i("TAG", "updating interface...");
 
         // Increase the exercise number
         currentExercise++;

@@ -110,11 +110,10 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
         // Stop the chat when the qichatbot is done
         qiGreetingsChatbot.addOnEndedListener(endReason -> {
-            testLevel = endReason.equals("test");
-            Log.i("TAG", "" + testLevel);
-
-            // Start test or choose basing on testLevel
-
+            Log.i("TAG", "staring grammar activity");
+            Intent intent = new Intent(this, GrammarActivity.class);
+            intent.putExtra("level", "HARD");
+            startActivity(intent);
         });
     }
 
