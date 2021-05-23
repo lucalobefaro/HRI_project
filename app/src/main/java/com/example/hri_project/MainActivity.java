@@ -1,7 +1,10 @@
 package com.example.hri_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
@@ -23,12 +26,26 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
     private boolean testLevel;
 
+    private Button goButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Register the RobotLifecycleCallbacks to this Activity.
         QiSDK.register(this, this);
+
+        setContentView(R.layout.activity_main);
+
+        this.goButton = findViewById(R.id.go);
+        this.goButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("ChooseExerciseActivity", "event: vocabulary_chosen");
+                Intent intent = new Intent(MainActivity.this, ChooseExerciseActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -43,7 +60,6 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
         // Initialize all the chats
         createGreetingsChat(qiContext);
-
 
         // Run the greetings chat
         startGreetingsChat();
@@ -64,8 +80,8 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     private void createGreetingsChat(QiContext qiContext) {
         // The robot focus is gained.
         Topic topic = TopicBuilder.with(qiContext)      // Create the builder using the qiContext
-                .withResource(R.raw.greetings)  // Set the topic resource.
-                .build();                       // Build the topic
+                .withResource(R.raw.greetings)          // Set the topic resource.
+                .build();                               // Build the topic
 
         // Create a new QiChatbot.
         qiGreetingsChatbot = QiChatbotBuilder.with(qiContext)

@@ -1,0 +1,42 @@
+topic: ~vocabularies()
+
+concept:(foods) ^rand[ "tomato is pomodoro"
+                       "meat is carne"
+                       "strawberry is fragola"
+                       "blueberry is mirtillo"
+                       "ice cream is gelato" ]
+concept:(animals) ^rand[ "dog is cane"
+                         "cat is gatto"
+                         "ladybug is coccinella"
+                         "squirrel is scoiattolo"
+                         "elephant is elefante" ]
+concept:(objects) ^rand[ "bottle is bottiglia"
+                         "lamp is lampada"
+                         "bed is letto"
+                         "wardrobe is armadio"
+                         "car is macchina" ]
+concept:(following) ^rand[ next "another one" "the following" ]
+
+proposal: %vocab_proposal Do you prefer that I show them to you or listen to me?
+    u1:(listen) ^stayInScope
+        Food or animals or objects?
+        u2:(food) ~foods ^stayInScope
+            u3:(~following) ~foods ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(animals) ~animals ^stayInScope
+            u3:(~following) ~animals ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(objects) ~objects ^stayInScope
+            u3:(~following) ~objects ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+    u1:(show) ^stayInScope
+        Food or animals or objects?
+        u2:(food) %food_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(animals) %animal_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(objects) %object_bookmark
+            Ok ^endDiscuss(vocab)
+
+
+

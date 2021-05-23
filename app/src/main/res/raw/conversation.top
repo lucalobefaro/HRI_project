@@ -1,0 +1,71 @@
+topic: ~conversation()
+
+concept:(hello) [ciao buongiorno "buon pomeriggio" buonasera]
+concept:(pleasantries) ^rand[ "come stai?" "come ti senti?" "come va?" ]
+concept:(good-day) ^rand[ bene "tutto bene" "alla grande" "mi sento in forma"]
+concept:(thanks) ^rand[grazie "grazie mille" "molto gentile"]
+concept:(kindness) ^rand[scusi "per favore" "cortesemente"]
+concept:(directions) ^rand["vada dritto" "giri a destra" "giri a sinistra"]
+
+
+proposal: %presentation_proposal Presentati ad una persona
+    u1:({~hello} ["mi chiamo" sono] _* {Qual è il tuo nome?})
+        Piacere di conoscerti, $1 . Io sono Pepper. Quanti anni hai?
+        u2:({Ho} _* {anni})
+            ^rand[ "Da dove vieni?" "Qual è la tua città d'origine?" "Di dove sei?" ]
+            u3:(_*)
+                ^rand[ "Oh $1! La conosco, è molto bella." "Ma non mi dire! Anche io!"
+                       "Mi dispiace non la conosco." "Non ricordo di esserci mai stato."]
+                ^rand[ "Cosa fai nella vita?" "Studi?" "Lavori?"
+                       "Qual è il tuo passatempo preferito?" "Cosa fai nel tempo libero?"]
+                u4:(studio) Cosa studi? ^stayInScope
+                    u5:(_*) Che bello! ^stayInScope
+                        u6:({Arrivederci Pepper} Piacere di averti conosciuto)
+                            Piacere mio, a presto! ^goto(again)
+                u4:(lavoro) Qual è il tuo impiego? ^stayInScope
+                    u5:(_*) Interessante! ^stayInScope
+                        u6:({Arrivederci Pepper} Piacere di averti conosciuto)
+                            Piacere mio, a presto! ^goto(again)
+                u4:(_*) Sembri una persona davvero piena di impegni! ^stayInScope
+                    u5:({Arrivederci Pepper} Piacere di averti conosciuto)
+                        Piacere mio, a presto! ^goto(again)
+
+
+
+proposal: %directions_proposal Immagina di esserti perso, il tuo telefono è scarico e
+                      devi dunque chiedere a qualche passante le indicazioni stradali
+                      necessarie a raggiungere la tua destinazione
+    u1:(~hello ~kindness come posso arrivare a _*?)
+        ^rand["Non è molto lontano da qui, ~directions poi ~directions"
+              "Le consiglio di prendere l'autobus in quella direzione"
+              "Proceda ancora un pò' su questa strada e poi chieda nuove indicazioni, è molto lontano"]
+        u2:(~thanks)
+            Si figuri, buona giornata ^goto(again)
+
+
+
+proposal: %shop_proposal Immagina di essere in vacanza in Italia: entri in un negozio
+                      per comprare dei souvenir
+    u1:(~hello)
+        Buongiorno, come posso aiutarvi?
+        u2:(Sto solo dando uno sguardo) ^stayInScope
+            Mi faccia sapere se ha bisogno
+        u2:(Vorrei sapere il prezzo {di _*} {~thanks}) ^stayInScope
+            ^rand[ "5 euro" "10 euro" "15 euro"]
+            u3:({Mi piace molto.} La compro)
+                Ecco il resto!
+                u4:(Grazie {e arrivederci})
+                    Grazie a lei, arrivederci e buona giornata! ^goto(again)
+        u2:(Cosa mi suggerisce? {~thanks}) ^stayInScope
+            Questa bellissima porcellana di Venezia
+            u3:({Mi piace molto.} La compro)
+                Ecco il resto!
+                u4:(Grazie {e arrivederci})
+                    Grazie a lei, arrivederci e buona giornata! ^goto(again)
+
+u:(next) ^nextProposal
+
+proposal: %again Vuoi esercitarti ancora?
+    u1:(si) ^nextProposal
+    u1:(no) ^endDiscuss(conv)
+
