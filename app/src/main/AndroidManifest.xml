@@ -11,6 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        <activity android:name=".ObjectRecognitionResults"></activity>
+        <activity android:name=".ObjectRecognitionExercise" />
+
         <!-- android:theme="@style/Theme.HRI_project" -->
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -48,4 +52,5 @@
         </activity>
     </application>
 
+    <uses-feature android:name="com.softbank.hardware.pepper"/>
 </manifest>

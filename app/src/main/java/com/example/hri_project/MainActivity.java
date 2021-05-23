@@ -41,8 +41,8 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         this.goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("ChooseExerciseActivity", "event: vocabulary_chosen");
-                Intent intent = new Intent(MainActivity.this, ChooseExerciseActivity.class);
+                Intent intent = new Intent(MainActivity.this, ObjectRecognitionExercise.class);
+                intent.putExtra("level", "HARD");
                 startActivity(intent);
             }
         });
@@ -69,7 +69,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     @Override
     public void onRobotFocusLost() {
         // Remove on started listeners from the Chat action.
-        greetingsChat.removeAllOnStartedListeners();
+        //greetingsChat.removeAllOnStartedListeners();
     }
 
     @Override
