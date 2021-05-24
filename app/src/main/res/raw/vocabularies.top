@@ -1,41 +1,91 @@
 topic: ~vocabularies()
 
-concept:(foods) ^rand[ "tomato is pomodoro"
-                       "meat is carne"
-                       "strawberry is fragola"
-                       "blueberry is mirtillo"
-                       "ice cream is gelato" ]
-concept:(animals) ^rand[ "dog is cane"
-                         "cat is gatto"
-                         "ladybug is coccinella"
-                         "squirrel is scoiattolo"
-                         "elephant is elefante" ]
-concept:(objects) ^rand[ "bottle is bottiglia"
-                         "lamp is lampada"
-                         "bed is letto"
-                         "wardrobe is armadio"
-                         "car is macchina" ]
+concept:(easy_foods) ^rand[ "tomato is pomodoro" "meat is carne" "cake is torta"
+                            "strawberry is fragola" "icecream is gelato"]
+
+concept:(easy_animals) ^rand[ "dog is cane" "cat is gatto" "giraffe is giraffa"
+                              "koala is said the same way!" "zebra is said the same way!"]
+concept:(easy_objects) ^rand[ "car is macchina" "bed is letto" "umbrella is ombrello"
+                              "table is tavolo" "house is casa" "headphones is cuffie" ]
+
+concept:(medium_foods) ^rand[ "blueberry is mirtillo" "peach is pesca" "carrot is carota"
+                              "salad is insalata" "rice is riso" ]
+concept:(medium_animals) ^rand["elephant is elefante" "squirrel is scoiattolo" "curly is riccio"
+                               "kangaroo is canguro" "lion is leone" ]
+concept:(medium_objects) ^rand["desk is scrivania" "book is libro" "display is schermo"
+                               "bottle is bottiglia" "lamp is lampada" "gloves is guanti" ]
+
+concept:(hard_foods) ^rand[ "eggs is uova" "flour is farina" "honey is miele"
+                            "courgette is zucchina" "aubergine is melanzana" ]
+concept:(hard_animals) ^rand[ "dromedary is dromedario" "ladybug is coccinella" "meerkat is suricato"
+                              "jellyfish is medusa" "monkey is scimmia" ]
+concept:(hard_objects) ^rand["radiator is termosifone" "hook is gancio" "factory is fabbrica"
+                             "cinecamera is cinepresa" "wardrobe is armadio" "stool is sgabello" ]
+
 concept:(following) ^rand[ next "another one" "the following" ]
 
-proposal: %vocab_proposal Do you prefer that I show them to you or listen to me?
+proposal: %easy_vocab_proposal Do you prefer that I show them to you or listen to me?
     u1:(listen) ^stayInScope
         Food or animals or objects?
-        u2:(food) ~foods ^stayInScope
-            u3:(~following) ~foods ^stayInScope
+        u2:(food{s}) ~easy_foods ^stayInScope
+            u3:(~following) ~easy_foods ^stayInScope
             u3:(Got it) ^endDiscuss(vocab)
-        u2:(animals) ~animals ^stayInScope
-            u3:(~following) ~animals ^stayInScope
+        u2:(animal{s}) ~easy_animals ^stayInScope
+            u3:(~following) ~easy_animals ^stayInScope
             u3:(Got it) ^endDiscuss(vocab)
-        u2:(objects) ~objects ^stayInScope
-            u3:(~following) ~objects ^stayInScope
+        u2:(object{s}) ~easy_objects ^stayInScope
+            u3:(~following) ~easy_objects ^stayInScope
             u3:(Got it) ^endDiscuss(vocab)
     u1:(show) ^stayInScope
         Food or animals or objects?
-        u2:(food) %food_bookmark
+        u2:(food{s}) %easy_food_bookmark
             Ok ^endDiscuss(vocab)
-        u2:(animals) %animal_bookmark
+        u2:(animal{s}) %easy_animal_bookmark
             Ok ^endDiscuss(vocab)
-        u2:(objects) %object_bookmark
+        u2:(object{s}) %easy_object_bookmark
+            Ok ^endDiscuss(vocab)
+
+proposal: %medium_vocab_proposal Do you prefer that I show them to you or listen to me?
+    u1:(listen) ^stayInScope
+        Food or animals or objects?
+        u2:(food{s}) ~medium_foods ^stayInScope
+            u3:(~following) ~medium_foods ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(animal{s}) ~medium_animals ^stayInScope
+            u3:(~following) ~medium_animals ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(object{s}) ~medium_objects ^stayInScope
+            u3:(~following) ~medium_objects ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+    u1:(show) ^stayInScope
+        Food or animals or objects?
+        u2:(food{s}) %medium_food_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(animal{s}) %medium_animal_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(object{s}) %medium_object_bookmark
+            Ok ^endDiscuss(vocab)
+
+
+proposal: %hard_vocab_proposal Do you prefer that I show them to you or listen to me?
+    u1:(listen) ^stayInScope
+        Food or animals or objects?
+        u2:(food{s}) ~hard_foods ^stayInScope
+            u3:(~following) ~hard_foods ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(animal{s}) ~hard_animals ^stayInScope
+            u3:(~following) ~hard_animals ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+        u2:(object{s}) ~hard_objects ^stayInScope
+            u3:(~following) ~hard_objects ^stayInScope
+            u3:(Got it) ^endDiscuss(vocab)
+    u1:(show) ^stayInScope
+        Food or animals or objects?
+        u2:(food{s}) %hard_food_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(animal{s}) %hard_animal_bookmark
+            Ok ^endDiscuss(vocab)
+        u2:(object{s}) %hard_object_bookmark
             Ok ^endDiscuss(vocab)
 
 

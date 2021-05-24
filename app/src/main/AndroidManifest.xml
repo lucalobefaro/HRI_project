@@ -39,10 +39,10 @@
         </activity>
         <activity
             android:name=".LearnVocabularyActivity"
-            android:parentActivityName=".ChooseLevelActivity">
+            android:parentActivityName=".ChooseLessonActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseLevelActivity" />
+                android:value=".ChooseLessonActivity" />
         </activity>
         <activity
             android:name=".ChooseLessonActivity"
@@ -56,7 +56,7 @@
             android:parentActivityName=".LearnVocabularyActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseLevelActivity" />
+                android:value=".LearnVocabularyActivity" />
         </activity>
     </application>
 

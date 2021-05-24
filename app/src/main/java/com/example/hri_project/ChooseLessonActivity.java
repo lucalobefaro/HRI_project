@@ -2,9 +2,11 @@ package com.example.hri_project;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -25,6 +27,9 @@ import java.util.Map;
 
 public class ChooseLessonActivity extends RobotActivity implements RobotLifecycleCallbacks, View.OnClickListener {
 
+    private Toolbar toolbar;
+    private ActionBar ab;
+
     private String level;
 
 
@@ -37,6 +42,13 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         // Get the current level
         Intent myIntent = getIntent();
         level = myIntent.getStringExtra("level");
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ab = getSupportActionBar();
+        ab.setTitle(R.string.choose_lesson);
+        // To display the arrow that goes back
+        ab.setDisplayHomeAsUpEnabled(true);
 
         // Set the button listeners
         findViewById(R.id.vocabulary_button).setOnClickListener(this);
@@ -59,8 +71,8 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
 
-        Topic choose_lesson_topic = TopicBuilder.with(qiContext)      // Create the builder using the qiContext
-                                    .withResource(R.raw.choose_lesson)          // Set the topic resource.
+        Topic choose_lesson_topic = TopicBuilder.with(qiContext)            // Create the builder using the qiContext
+                                    .withResource(R.raw.choose_lesson)      // Set the topic resource.
                                     .build();                               // Build the topic
 
         // Create a new QiChatbot.

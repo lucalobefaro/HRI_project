@@ -4,15 +4,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
-import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
@@ -28,19 +24,14 @@ import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
-public class LearnVocabularyActivity extends RobotActivity implements RobotLifecycleCallbacks {
+public class LearnVocabularyActivity extends RobotActivity implements RobotLifecycleCallbacks, View.OnClickListener {
 
     private Toolbar toolbar;
     private ActionBar ab;
 
-    private LinearLayout buttonCategories;
-    private List<String> categoriesList;
-    private String category;
+    private String level;
 
     private Topic topic;
     private Chat vocabulariesChat;
@@ -59,68 +50,42 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
 
         setContentView(R.layout.activity_learn_vocabulary);
 
+        level = getIntent().getStringExtra("level");
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ab = getSupportActionBar();
-        ab.setTitle(R.string.learnVocabulary);
+        ab.setTitle(R.string.learn_vocabulary);
         // To display the arrow that goes back
         ab.setDisplayHomeAsUpEnabled(true);
 
-        this.buttonCategories = findViewById(R.id.buttonCategoriesGroup);
-        categoriesList = Arrays.asList("FOOD", "ANIMALS", "OBJECTS");
-
-        final List<Button> buttons = new ArrayList<>();
-
-        for (final Object i : categoriesList) {
-            final Button btn = new Button(this);
-            switch (String.valueOf(i)) {
-                case "FOOD":
-                    btn.setText("FOOD");
-                    break;
-                case "ANIMALS":
-                    btn.setText("ANIMALS");
-                    break;
-                case "OBJECTS":
-                    btn.setText("OBJECTS");
-                    break;
+        // Otherwise, going back, loses the info of the current level
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LearnVocabularyActivity.this, ChooseLessonActivity.class);
+                intent.putExtra("level", level);
+                startActivity(intent);
             }
-            buttons.add(btn);
-            LinearLayout.LayoutParams btnparams = new LinearLayout.LayoutParams(250, 140);
-            btn.setLayoutParams(btnparams);
-            btnparams.setMargins(120, 0, 0, 0);
-            btn.setBackgroundColor(Color.LTGRAY);
-            btn.setClickable(true);
-            buttonCategories.addView(btn);
-            buttonCategories.setGravity(Gravity.CENTER_VERTICAL);
+        });
 
-            Intent intent = new Intent(LearnVocabularyActivity.this, SingleTermActivity.class);
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String categoryName = String.valueOf(i);
-                    switch (categoryName) {
-                        case "FOOD":
-                            category = (String) btn.getText();
-                            intent.putExtra("category", category);
-                            startActivity(intent);
-                            Log.d("LearnVocabularyActivity", "event: vocabulary food chosen");
-                            break;
-                        case "ANIMALS":
-                            category = (String) btn.getText();
-                            intent.putExtra("category", category);
-                            startActivity(intent);
-                            Log.d("LearnVocabularyActivity", "event: vocabulary animals chosen");
-                            break;
-                        case "OBJECTS":
-                            category = (String) btn.getText();
-                            intent.putExtra("category", category);
-                            startActivity(intent);
-                            Log.d("LearnVocabularyActivity", "event: vocabulary objects chosen");
-                            break;
-                    }
-                }
-            });
-        }
+        findViewById(R.id.food_button).setOnClickListener(this);
+        findViewById(R.id.animals_button).setOnClickListener(this);
+        findViewById(R.id.objects_button).setOnClickListener(this);
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        // Get the button text (level)
+        String category = ((Button)v).getText().toString();
+
+        // Start the chosen category activity
+        Intent intent = new Intent(this, SingleTermActivity.class);
+        intent.putExtra("category", category);
+        intent.putExtra("level", level);
+        Log.d("LearnVocabularyActivity", "event: vocabulary's category chosen is " + category + "LEVEL " + level);
+        startActivity(intent);
     }
 
     @Override
@@ -188,11 +153,31 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
         // Get the bookmarks from the topic.
         Map<String, Bookmark> bookmarks = topic.getBookmarks();
 
+        String vocabProposal = null;
+        String strFoodBookmark = null, strAnimalBookmark = null, strObjectBookmark = null;
+
+        if(level.equals("EASY")){
+            vocabProposal = "easy_vocab_proposal";
+            strFoodBookmark = "easy_food_bookmark";
+            strAnimalBookmark = "easy_animal_bookmark";
+            strObjectBookmark = "easy_object_bookmark";
+        } else if(level.equals("MEDIUM")){
+            vocabProposal = "medium_vocab_proposal";
+            strFoodBookmark = "medium_food_bookmark";
+            strAnimalBookmark = "medium_animal_bookmark";
+            strObjectBookmark = "medium_object_bookmark";
+        } else {
+            vocabProposal = "hard_vocab_proposal";
+            strFoodBookmark = "hard_food_bookmark";
+            strAnimalBookmark = "hard_animal_bookmark";
+            strObjectBookmark = "hard_object_bookmark";
+        }
+
         // Get the proposal bookmark and all the others.
-        proposalBookmark = bookmarks.get("vocab_proposal");
-        Bookmark foodBookmark = bookmarks.get("food_bookmark");
-        Bookmark animalBookmark = bookmarks.get("animal_bookmark");
-        Bookmark objectBookmark = bookmarks.get("object_bookmark");
+        proposalBookmark = bookmarks.get(vocabProposal);
+        Bookmark foodBookmark = bookmarks.get(strFoodBookmark);
+        Bookmark animalBookmark = bookmarks.get(strAnimalBookmark);
+        Bookmark objectBookmark = bookmarks.get(strObjectBookmark);
 
         // Create a BookmarkStatus for each bookmark.
         foodBookmarkStatus = qiVocabulariesChatbot.bookmarkStatus(foodBookmark);
@@ -200,6 +185,7 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
         objectBookmarkStatus = qiVocabulariesChatbot.bookmarkStatus(objectBookmark);
 
         Intent intent = new Intent(LearnVocabularyActivity.this, SingleTermActivity.class);
+        intent.putExtra("level", level);
 
         // Perform the intent just reached each bookmark.
         foodBookmarkStatus.addOnReachedListener(() -> {

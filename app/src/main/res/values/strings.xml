@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">HRI_project</string>
-    <string name="chooseActivity">Choose the exercise typology</string>
-    <string name="learnVocabulary">Choose the categories</string>
+    <string name="choose_lesson">Choose the lesson</string>
+    <string name="learn_vocabulary">Choose the categories</string>
     <string name="conversation">Talk with me!</string>
-    <string name="choose_vocabulary">Vocabulary</string>
-    <string name="choose_conversation">Conversation</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
