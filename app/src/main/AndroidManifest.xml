@@ -16,6 +16,7 @@
         <activity android:name=".ObjectRecognitionExercise" />
 
         <!-- android:theme="@style/Theme.HRI_project" -->
+        <activity android:name=".GrammarLesson"></activity>
         <activity android:name=".GrammarTestActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>

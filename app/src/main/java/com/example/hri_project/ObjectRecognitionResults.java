@@ -5,22 +5,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.ChatBuilder;
+import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
 import com.aldebaran.qi.sdk.builder.SayBuilder;
+import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.Phrase;
+import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Say;
+import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 public class ObjectRecognitionResults extends RobotActivity implements RobotLifecycleCallbacks {
 
     private int correctAnswers;
     private int nExercises;
     private boolean passed;
+    private String level;
+    private boolean test;
 
     private int happyFaceImage = R.drawable.happy_face;
     private int sadFaceImage = R.drawable.sad_face;
@@ -38,6 +48,8 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
         nExercises = myIntent.getIntExtra("nExercises", 0);
         correctAnswers = myIntent.getIntExtra("correctAnswers", 0);
         passed = myIntent.getBooleanExtra("passed", false);
+        level = myIntent.getStringExtra("level");
+        test = myIntent.getBooleanExtra("test", false);
 
         // Visualize the result
         TextView nExercisesTextView = findViewById(R.id.nExercises);
@@ -52,6 +64,12 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
         } else {
             resultFaceImage.setImageResource(sadFaceImage);
         }
+
+        // Add the listener to the "continue" button
+        Button continueButton = findViewById(R.id.continue_button);
+        continueButton.setOnClickListener( (View v) -> {
+            startNextActivity();
+        });
 
     }
 
@@ -85,6 +103,43 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
                 .withPhrase(passedPhrase)
                 .build();
         passedSay.run();
+
+        // Wait for a signal to continue
+        Topic continueTopic = TopicBuilder.with(qiContext)
+                                .withResource(R.raw.continue_signal)
+                                .build();
+        QiChatbot qiContinueChatbot = QiChatbotBuilder.with(qiContext)
+                                        .withTopic(continueTopic)
+                                        .build();
+        Chat continueChat = ChatBuilder.with(qiContext)
+                                .withChatbot(qiContinueChatbot)
+                                .build();
+        qiContinueChatbot.addOnEndedListener(endReason -> {
+            startNextActivity();
+        });
+        continueChat.async().run();
+    }
+
+
+    private void startNextActivity() {
+
+        Intent nextIntent;
+
+        // If the exercise is passed then continue with the next one
+        if(passed) {
+            nextIntent = new Intent(this, GrammarTestActivity.class);
+
+        // Otherwise return to the choose lesson activity
+        } else {
+            nextIntent = new Intent(this, ChooseLessonActivity.class);
+        }
+
+        // Give the informations about the level to the next activity
+        nextIntent.putExtra("level", level);
+        nextIntent.putExtra("test", test);
+
+        // Start the next activity
+        startActivity(nextIntent);
     }
 
 

@@ -91,6 +91,10 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         qiGreetingsChatbot.addOnEndedListener(endReason -> {
             if(endReason.equals("test")) {
                 // Start test level activity
+                Intent testIntent = new Intent(this, ObjectRecognitionExercise.class);
+                testIntent.putExtra("level", "EASY");
+                testIntent.putExtra("test", true);
+                startActivity(testIntent);
 
             } else {
                 // Start choose level activity

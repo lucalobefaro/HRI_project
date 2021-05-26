@@ -105,14 +105,15 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
                                               "dromedary",
                                               "cinecamera"};
 
+    private String level;
+    private boolean test;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         QiSDK.register(this, this);
-        setContentView(R.layout.activity_object_recognition_exercise);
-
         setContentView(R.layout.activity_object_recognition_exercise);
 
         // Get the view elements
@@ -124,7 +125,8 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
 
         // Get the level
         Intent myIntent = getIntent();
-        String level = myIntent.getStringExtra("level");
+        level = myIntent.getStringExtra("level");
+        test = myIntent.getBooleanExtra("test", false);
 
         // Initialize the exercise according to the level
         if(level.equals("HARD")) {
@@ -284,6 +286,8 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
             objectRecognitionResultsIntent.putExtra("nExercises", nExercises);
             objectRecognitionResultsIntent.putExtra("correctAnswers", correctAnswers);
             objectRecognitionResultsIntent.putExtra("passed", isPassed());
+            objectRecognitionResultsIntent.putExtra("level", level);
+            objectRecognitionResultsIntent.putExtra("test", test);
             startActivity(objectRecognitionResultsIntent);
         }
     }

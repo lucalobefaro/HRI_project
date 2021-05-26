@@ -71,8 +71,8 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
 
-        Topic choose_lesson_topic = TopicBuilder.with(qiContext)            // Create the builder using the qiContext
-                                    .withResource(R.raw.choose_lesson)      // Set the topic resource.
+        Topic choose_lesson_topic = TopicBuilder.with(qiContext)      // Create the builder using the qiContext
+                                    .withResource(R.raw.choose_lesson)          // Set the topic resource.
                                     .build();                               // Build the topic
 
         // Create a new QiChatbot.
@@ -114,7 +114,7 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         if(lessonType.equals("vocabulary")) {
             lessonIntent = new Intent(this, LearnVocabularyActivity.class);
         } else if(lessonType.equals("grammar")) {
-            lessonIntent = new Intent(this, GrammarTestActivity.class);
+            lessonIntent = new Intent(this, GrammarLesson.class);
         } else {
             lessonIntent = new Intent(this, LearnVocabularyActivity.class);
         }

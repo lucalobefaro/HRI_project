@@ -33,6 +33,7 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     // - add a retry button in the score view?
     // - make buttons fade in shortly after sentence
 
+    private boolean test;
     private QiContext qiContext = null;
     private final Locale itLocale = new Locale(Language.ITALIAN, Region.ITALY);
     private int progress = -1;
@@ -105,6 +106,7 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
         if (levelStr.equals("EASY")) level = 0;
         else if (levelStr.equals("MEDIUM")) level = 1;
         else level = 2;
+        test = intent.getBooleanExtra("test", false);
 
         fadeDuration = getResources().getInteger(android.R.integer.config_longAnimTime);
 
@@ -237,6 +239,7 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
         else levelStr = "HARD";
         Intent chooseLessonIntent = new Intent(this, ConversationActivity.class);
         chooseLessonIntent.putExtra("level", levelStr);
+        chooseLessonIntent.putExtra("test", test);
         startActivity(chooseLessonIntent);
     }
 

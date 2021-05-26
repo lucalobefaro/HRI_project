@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class ConversationActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
+    private boolean test;
     private String level;
     private String proposalOne;
     private String proposalTwo;
@@ -53,6 +54,7 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
 
         level = getIntent().getStringExtra("level");
         Log.i("ConversationActivity", "level "+ level);
+        test = getIntent().getBooleanExtra("test", false);
 
         errors = 0;
         passed = true;
@@ -191,6 +193,7 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
             Intent intent = new Intent(this, ConversationResultsActivity.class);
             intent.putStringArrayListExtra("testPassed", testPassed);
             intent.putExtra("level", level);
+            intent.putExtra("test", test);
             startActivity(intent);
 
         });

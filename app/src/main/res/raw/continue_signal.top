@@ -1,0 +1,5 @@
+topic: ~continue()
+
+concept:(continue) ["continue" "let's continue" "ok let's go" "let's go"]
+
+u:(~continue) ^endDiscuss(continue)

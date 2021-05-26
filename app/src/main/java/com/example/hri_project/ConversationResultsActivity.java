@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class ConversationResultsActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
     private String level;
+    private boolean test;
 
     private ArrayList<String> testPassed;
     private boolean passedLevel;
@@ -41,6 +42,7 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
 
         level = getIntent().getStringExtra("level");
         Log.i("ConversationResultsActivity", "level "+  level);
+        test = getIntent().getBooleanExtra("test", false);
 
         testTaken = 3;
         testPassed = getIntent().getStringArrayListExtra("testPassed");
@@ -81,10 +83,22 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
         // Say if the exercise is passed
         Phrase passedPhrase;
         if(passedLevel) {
+
             if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
             else passedPhrase = new Phrase("Congratulations! You are ready for the next level!");
 
-            Intent intent = new Intent(this, ChooseLessonActivity.class);
+            Intent intent;
+            if(test) {
+                /*
+                if(level.equals("HARD")) {
+                    // Go to the last activity
+                }
+                 */
+                intent = new Intent(this, ObjectRecognitionExercise.class);
+            } else {
+                intent = new Intent(this, ChooseLessonActivity.class);
+            }
+
             switch (level) {
                 case "EASY":
                     level = "MEDIUM";
