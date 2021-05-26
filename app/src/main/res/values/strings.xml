@@ -2,5 +2,6 @@
     <string name="app_name">HRI_project</string>
     <string name="choose_lesson">Choose the lesson</string>
     <string name="learn_vocabulary">Choose the categories</string>
-    <string name="conversation">Talk with me!</string>
+    <string name="final_string_ita">CONGRATULAZIONI!\nHai superato tutti i test! Non ho altro da insegnarti!\nSei pronto per sostenere gli esami!</string>
+    <string name="final_string_en">Congratulations! You have passed all the tests! I have nothing more to teach you!\nYou are ready to take the exams!</string>
 </resources>

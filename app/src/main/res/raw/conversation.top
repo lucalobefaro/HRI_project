@@ -14,7 +14,7 @@ concept:(again) ^rand[ "Ma non scappare: esercitiamoci ancora!" "Dai, ancora una
 # // ----------------------------------- EASY LEVEL ---------------------------------- //
 
 #1
-proposal: %presentation_proposal Presentati ad una persona
+proposal: %presentation_proposal Let's start! Presentati ad una persona
     u1:(_* ~ungrammatical_sentences _*) %error ^stayInScope
         ~misunderstanding
     u1:({Ciao} {io} ["mi chiamo" sono] _* {Qual è il tuo nome?})
@@ -69,7 +69,7 @@ proposal: %weather_proposal Come è il tempo oggi?
 #3
 proposal: %directions_proposal Immagina di esserti perso, il tuo telefono è scarico e
     devi dunque chiedere a qualche passante le indicazioni stradali necessarie a raggiungere la tua destinazione
-    u1:({Scusi} come posso ["arrivare a" "andare a" raggiungere] _*?)
+    u1:({Scusi} come ["posso arrivare a" "posso andare a" "posso raggiungere" raggiungo "vado a"] _*?)
         Non è molto lontano da qui, vada dritto per questa strada poi giri a destra e dopo cento metri a sinistra
         u2:(~repeat) %error ^stayInScope
             Ok, faccia così! Proceda ancora un pò' su questa strada e poi chieda nuove indicazioni
@@ -85,7 +85,7 @@ proposal: %directions_proposal Immagina di esserti perso, il tuo telefono è sca
 # // --------------------------------- MEDIUM LEVEL --------------------------------- //
 
 #1
-proposal: %hobby_proposal Cosa ti piace fare nel tempo libero?
+proposal: %hobby_proposal Let's start! Cosa ti piace fare nel tempo libero?
     u1:(~ungrammatical_sentences _*) %error ^stayInScope
         ~misunderstanding
     u1:(~repeat) %error ^stayInScope
@@ -104,7 +104,7 @@ proposal: %shop_proposal Immagina di essere in vacanza in Italia: entri in un ne
         Salve, come posso aiutarvi?
         u2:(~repeat) %error ^stayInScope
             Posso aiutarti a scegliere cosa comprare?
-        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+        u2:(~ungrammatical_sentences _*) %error ^stayInScope
             ~misunderstanding
         u2:(Sto solo dando uno sguardo) ^stayInScope
             Mi faccia sapere se ha bisogno
@@ -121,6 +121,10 @@ proposal: %shop_proposal Immagina di essere in vacanza in Italia: entri in un ne
                 Ecco il resto!
                 u4:(Grazie {e arrivederci})
                     Grazie a lei, arrivederci e buona giornata! ~again ^goto(animals_proposal)
+            u3:(Oppure?)
+                Abbiamo anche agende, penne e portapenne!
+                u4:(Prendo ["uno di questi" questi])
+                    Grazie, arrivederci e buona giornata! ~again ^goto(animals_proposal)
 
 
 #3
@@ -150,7 +154,7 @@ proposal: %animals_proposal Ti piacciono gli animali?
 # // ---------------------------------- HARD LEVEL ---------------------------------- //
 
 #1
-proposal: %typical_day_proposal Raccontami come si articola tipicamente la tua giornata.
+proposal: %typical_day_proposal Let's start! Raccontami come si articola tipicamente la tua giornata.
     u1:(_* ~ungrammatical_sentences _*) %error ^stayInScope
         ~misunderstanding
     u1:(~repeat) %error ^stayInScope
@@ -177,7 +181,7 @@ proposal: %travel_proposal Raccontami di un viaggio che hai fatto.
             ~misunderstanding
         u2:(~repeat) %error ^stayInScope
             Qual è il ricordo più bello di quel viaggio?
-        u2:(Sicuramente quel giorno _*)
+        u2:({Sicuramente} ["quel giorno" "quella volta"] _*)
             Immagino vi siete divertiti tanto! E, se dovessi programmare un viaggio, dove andresti?
             u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
                 ~misunderstanding

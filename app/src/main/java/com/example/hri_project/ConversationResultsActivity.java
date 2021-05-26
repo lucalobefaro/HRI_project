@@ -4,16 +4,24 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.ChatBuilder;
+import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
 import com.aldebaran.qi.sdk.builder.SayBuilder;
+import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.Phrase;
+import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Say;
+import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 import java.util.ArrayList;
 
@@ -59,6 +67,12 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
         if(passedLevel) resultFaceImage.setImageResource(happyFaceImage);
         else resultFaceImage.setImageResource(sadFaceImage);
 
+        // Add the listener to the "continue" button
+        Button continueButton = findViewById(R.id.continue_button);
+        continueButton.setOnClickListener( (View v) -> {
+            startNextActivity();
+        });
+
     }
 
 
@@ -80,47 +94,91 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
                 .build();
         resultsSay.run();
 
+
         // Say if the exercise is passed
         Phrase passedPhrase;
-        if(passedLevel) {
 
+        if(passedLevel) {
             if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
             else passedPhrase = new Phrase("Congratulations! You are ready for the next level!");
-
-            Intent intent;
-            if(test) {
-                /*
-                if(level.equals("HARD")) {
-                    // Go to the last activity
-                }
-                 */
-                intent = new Intent(this, ObjectRecognitionExercise.class);
-            } else {
-                intent = new Intent(this, ChooseLessonActivity.class);
-            }
-
-            switch (level) {
-                case "EASY":
-                    level = "MEDIUM";
-                    break;
-                case "MEDIUM":
-                    level = "HARD";
-                    break;
-                case "HARD":
-                    level = null;
-                    break;
-            }
-
-            intent.putExtra("level", level);
-            startActivity(intent);
-
-        } else {
+        } else
             passedPhrase = new Phrase("I'm sorry, you need to practice more");
-        }
+
         Say passedSay = SayBuilder.with(qiContext)
                 .withPhrase(passedPhrase)
                 .build();
         passedSay.run();
+
+        // Wait for a signal to continue
+        Topic continueTopic = TopicBuilder.with(qiContext)
+                .withResource(R.raw.continue_signal)
+                .build();
+
+        QiChatbot qiContinueChatbot = QiChatbotBuilder.with(qiContext)
+                .withTopic(continueTopic)
+                .build();
+
+        Chat continueChat = ChatBuilder.with(qiContext)
+                .withChatbot(qiContinueChatbot)
+                .build();
+
+        qiContinueChatbot.addOnEndedListener(endReason -> {
+            startNextActivity();
+        });
+
+        continueChat.async().run();
+    }
+
+
+    @SuppressLint("LongLogTag")
+    private void startNextActivity() {
+
+        Intent intent;
+
+        if(passedLevel) {
+            if(test) {
+                if(level.equals("HARD")) {
+                    intent = new Intent(this, FinalActivity.class);
+                } else {
+                    intent = new Intent(this, ObjectRecognitionExercise.class);
+
+                    // I upgrade the level to the following
+                    switch (level) {
+                        case "EASY":
+                            level = "MEDIUM";
+                            Log.i("ConversationResultsActivity", "GO TO level "+ level);
+                            break;
+                        case "MEDIUM":
+                            level = "HARD";
+                            Log.i("ConversationResultsActivity", "GO TO level "+ level);
+                            break;
+                    }
+                }
+            } else { // If I have chosen my level
+                if(level.equals("HARD")) {
+                    intent = new Intent(this, FinalActivity.class);
+                } else {
+                    intent = new Intent(this, ChooseLessonActivity.class);
+
+                    // I upgrade the level to the following
+                    switch (level) {
+                        case "EASY":
+                            level = "MEDIUM";
+                            Log.i("ConversationResultsActivity", "GO TO level "+ level);
+                            break;
+                        case "MEDIUM":
+                            level = "HARD";
+                            Log.i("ConversationResultsActivity", "GO TO level "+ level);
+                            break;
+                    }
+                }
+            }
+        } else { // If I have not passed the level
+            intent = new Intent(this, ChooseLessonActivity.class);
+        }
+        intent.putExtra("level", level);
+        intent.putExtra("test", test);
+        startActivity(intent);
     }
 
 

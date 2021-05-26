@@ -172,7 +172,7 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
         BookmarkStatus errorBookmarkStatus = qiConversationChatbot.bookmarkStatus(errorBookmark);
         errorBookmarkStatus.addOnReachedListener(() -> {
             errors += 1;
-            if (errors >= 3) passed = false;
+            if (errors >= 2) passed = false;
             Log.i("ConversationActivity", "errors "+  errors);
             Log.i("ConversationActivity", "passed "+  passed);
             Log.i("ConversationActivity", "test #"+  testTaken);
