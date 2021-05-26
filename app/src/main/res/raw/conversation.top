@@ -1,70 +1,213 @@
 topic: ~conversation()
 
-concept:(hello) [ciao buongiorno "buon pomeriggio" buonasera]
-concept:(pleasantries) ^rand[ "come stai?" "come ti senti?" "come va?" ]
-concept:(good-day) ^rand[ bene "tutto bene" "alla grande" "mi sento in forma"]
-concept:(thanks) ^rand[grazie "grazie mille" "molto gentile"]
-concept:(kindness) ^rand[scusi "per favore" "cortesemente"]
-concept:(directions) ^rand["vada dritto" "giri a destra" "giri a sinistra"]
+concept:(hello) [ "buona giornata" "buon pomeriggio" "buona serata" "arrivederci" ]
+concept:(ungrammatical_sentences) [ "io essere" "io andare" "io avere" "io pensare" "io {non} sapere"
+                                    "io studiare" "io lavorare" "io volere" "io viaggiare" "io suonare"]
+concept:(repeat) [ ripeta ripeti "{scusami} non ho capito"
+                           "puoi ripetere per favore?" "non riesco a capire" ]
+concept:(misunderstanding) ^rand[ "Non riesco a comprenderti, riformula la tua frase"
+                                  "Non capisco, riprova" "Puoi spiegarti meglio?" ]
+concept:(again) ^rand[ "Ma non scappare: esercitiamoci ancora!" "Dai, ancora una:"
+                       "Ma non avere fretta: esercitiamoci ancora!" ]
 
 
+# // ----------------------------------- EASY LEVEL ---------------------------------- //
+
+#1
 proposal: %presentation_proposal Presentati ad una persona
-    u1:({~hello} ["mi chiamo" sono] _* {Qual è il tuo nome?})
-        Piacere di conoscerti, $1 . Io sono Pepper. Quanti anni hai?
-        u2:({Ho} _* {anni})
-            ^rand[ "Da dove vieni?" "Qual è la tua città d'origine?" "Di dove sei?" ]
-            u3:(_*)
-                ^rand[ "Oh $1! La conosco, è molto bella." "Ma non mi dire! Anche io!"
-                       "Mi dispiace non la conosco." "Non ricordo di esserci mai stato."]
-                ^rand[ "Cosa fai nella vita?" "Studi?" "Lavori?"
-                       "Qual è il tuo passatempo preferito?" "Cosa fai nel tempo libero?"]
-                u4:(studio) Cosa studi? ^stayInScope
-                    u5:(_*) Che bello! ^stayInScope
-                        u6:({Arrivederci Pepper} Piacere di averti conosciuto)
-                            Piacere mio, a presto! ^goto(again)
-                u4:(lavoro) Qual è il tuo impiego? ^stayInScope
-                    u5:(_*) Interessante! ^stayInScope
-                        u6:({Arrivederci Pepper} Piacere di averti conosciuto)
-                            Piacere mio, a presto! ^goto(again)
-                u4:(_*) Sembri una persona davvero piena di impegni! ^stayInScope
-                    u5:({Arrivederci Pepper} Piacere di averti conosciuto)
-                        Piacere mio, a presto! ^goto(again)
+    u1:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+        ~misunderstanding
+    u1:({Ciao} {io} ["mi chiamo" sono] _* {Qual è il tuo nome?})
+        Piacere di conoscerti, $1 . Io sono Pepper. Parlami di te: cosa fai nella vita?
+        u2:(~ungrammatical_sentences) %error ^stayInScope
+            ~misunderstanding
+        u2:(studio)
+            Cosa studi?
+            u3:([ "artificial intelligence and robotics" "ingegneria _*" informatica
+                giurisprudenza medicina economia "scienze _*" ])
+                Che bello, sembra molto interessante! Potresti soddisfare molte mie curiosità!
+                u4:(~repeat) %error ^stayInScope
+                    Dico che sembra molto bello ed interessante! Ho tante domande a cui tu potresti dare risposta!
+                u4:(~ungrammatical_sentences _*) %error ^stayInScope
+                    ~misunderstanding
+                u4:({Piacere averti conosciuto Pepper} ~hello)
+                    Piacere mio! ~again ^goto(weather_proposal)
+        u2:(lavoro)
+            Qual è il tuo impiego?
+            u3:(["ingegnere _*" "ministro _*" medico chirurgo infermiere avvocato giudice docente impiegato]) ^stayInScope
+                Avrai tante responsabilità! Complimenti!
+                u4:(~repeat) %error
+                    Dico che sembra tu abbia tante responsabilità!
+                u4:({Piacere averti conosciuto Pepper} ~hello)
+                    Piacere mio! ~again ^goto(weather_proposal)
+                u4:(~ungrammatical_sentences _*) %error
+                    ~misunderstanding
 
 
+#2
+proposal: %weather_proposal Come è il tempo oggi?
+    u1:(["{Oggi} {è una giornata fantastica.} C'è il sole {e fa caldo}" "Piove {e fa freddo}" Nuvoloso "C'è la neve"])
+        Secondo te, è l'ideale per trascorrere la giornata in che modo?
+        u2:(~repeat) %error ^stayInScope
+            Ok, cercherò di essere più chiara! Che ti andrebbe di fare con il sole o con la pioggia?
+        u2:(~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
+        u2:(Farei volentieri ["una gita" "un'escursione"] ["al mare" "in montagna" "al lago"])
+            Hai proprio ragione! Verrei con te volentieri! ~again ^goto(directions_proposal)
+            u3:(~repeat) %error
+                La tua è davvero una bella idea! Potessi, ci andrei anche io! ~again ^goto(directions_proposal)
+        u2:(["Vorrei andare" "mi piacerebbe andare" andrei] al mare)
+            Hai proprio ragione! Verrei con te volentieri! ~again ^goto(directions_proposal)
+            u3:(~repeat) %error
+                La tua è davvero una bella idea! Potessi, ci andrei anche io! ~again ^goto(directions_proposal)
+        u2:(è la giornata [giusta perfetta] per ["un film" "una cioccolata calda"] {in compagnia})
+            Hai ragione! Ti farei compagnia volentieri! ~again ^goto(directions_proposal)
+            u3:(~repeat) %error
+                La tua è davvero una bella idea! Potessi, farei la stessa cosa! ~again ^goto(directions_proposal)
+
+
+#3
 proposal: %directions_proposal Immagina di esserti perso, il tuo telefono è scarico e
-                      devi dunque chiedere a qualche passante le indicazioni stradali
-                      necessarie a raggiungere la tua destinazione
-    u1:(~hello ~kindness come posso arrivare a _*?)
-        ^rand["Non è molto lontano da qui, ~directions poi ~directions"
-              "Le consiglio di prendere l'autobus in quella direzione"
-              "Proceda ancora un pò' su questa strada e poi chieda nuove indicazioni, è molto lontano"]
-        u2:(~thanks)
-            Si figuri, buona giornata ^goto(again)
+    devi dunque chiedere a qualche passante le indicazioni stradali necessarie a raggiungere la tua destinazione
+    u1:({Scusi} come posso ["arrivare a" "andare a" raggiungere] _*?)
+        Non è molto lontano da qui, vada dritto per questa strada poi giri a destra e dopo cento metri a sinistra
+        u2:(~repeat) %error ^stayInScope
+            Ok, faccia così! Proceda ancora un pò' su questa strada e poi chieda nuove indicazioni
+            u3:(~repeat) %error ^stayInScope
+                Le consiglio di prendere l'autobus in quella direzione e chieda all'autista di indicarle la fermata
+            u3:({Ok} Grazie {mille})
+                Si figuri, buona giornata ^endDiscuss(conv)
+        u2:({Ok} Grazie {mille})
+            Si figuri, buona giornata ^endDiscuss(conv)
 
 
 
-proposal: %shop_proposal Immagina di essere in vacanza in Italia: entri in un negozio
-                      per comprare dei souvenir
-    u1:(~hello)
-        Buongiorno, come posso aiutarvi?
+# // --------------------------------- MEDIUM LEVEL --------------------------------- //
+
+#1
+proposal: %hobby_proposal Cosa ti piace fare nel tempo libero?
+    u1:(~ungrammatical_sentences _*) %error ^stayInScope
+        ~misunderstanding
+    u1:(~repeat) %error ^stayInScope
+        Quando puoi prenderti una pausa, quali sono i tuoi interessi?
+    u1:({["Faccio" "Pratico"]} [nuoto tennis basket])
+        Si vede che sei una persona sportiva infatti! ~again ^goto(shop_proposal)
+    u1:({["Mi piace" "Amo"]} viaggiare)
+        Avrai visitato tantissimi posti! Che bello!! ~again ^goto(shop_proposal)
+    u1:({["Mi piace" "Amo" "Suono"]} {suonare} _* [chitarra piano basso violino batteria])
+        Anche io sono amante della musica e del ritmo! ~again ^goto(shop_proposal)
+
+
+#2
+proposal: %shop_proposal Immagina di essere in vacanza in Italia: entri in un negozio per comprare dei souvenir
+    u1:([Ciao Buongiorno Buonasera])
+        Salve, come posso aiutarvi?
+        u2:(~repeat) %error ^stayInScope
+            Posso aiutarti a scegliere cosa comprare?
+        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
         u2:(Sto solo dando uno sguardo) ^stayInScope
             Mi faccia sapere se ha bisogno
-        u2:(Vorrei sapere il prezzo {di _*} {~thanks}) ^stayInScope
-            ^rand[ "5 euro" "10 euro" "15 euro"]
-            u3:({Mi piace molto.} La compro)
+        u2:(["Quanto costa" "Vorrei sapere il prezzo {di}"] _* {Per favore})
+            ^rand[ "5 euro" "10 euro" "15 euro" "20 euro"]
+            u3:({Mi piace molto.} [La lo li le] compro)
                 Ecco il resto!
                 u4:(Grazie {e arrivederci})
-                    Grazie a lei, arrivederci e buona giornata! ^goto(again)
-        u2:(Cosa mi suggerisce? {~thanks}) ^stayInScope
-            Questa bellissima porcellana di Venezia
-            u3:({Mi piace molto.} La compro)
+                    Grazie a lei, arrivederci e buona giornata! ~again ^goto(animals_proposal)
+        u2:(Cosa mi [suggerisce consiglia]?)
+            ^rand[ "Questa bellissima porcellana di Venezia" "Questo mortaio in marmo bianco di Carrara"
+                   "Questo portachiavi con i simboli caratteristici della città" ]
+            u3:({Mi piace molto.} [La lo] compro)
                 Ecco il resto!
                 u4:(Grazie {e arrivederci})
-                    Grazie a lei, arrivederci e buona giornata! ^goto(again)
+                    Grazie a lei, arrivederci e buona giornata! ~again ^goto(animals_proposal)
 
-u:(next) ^nextProposal
 
-proposal: %again Vuoi esercitarti ancora?
-    u1:(si) ^nextProposal
-    u1:(no) ^endDiscuss(conv)
+#3
+proposal: %animals_proposal Ti piacciono gli animali?
+    u1:([si no molto poco])
+        Hai qualche animale domestico?
+        u2:(~repeat) %error ^stayInScope
+            Hai qualche animale a casa? Quale?
+        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
+        u2:({Ho} ["un cane" "_* cani" "un gatto" "_* gatti" "un criceto" "_* criceti"
+             "un pappagallo" "_* pappagalli" "una tartaruga" "_* tartarughe" "pesciolino rosso"])
+             Anche a me piacciono molto gli animali! ^endDiscuss(conv)
+        u2:(no, ma ne prenderei uno volentieri)
+            Quale vorresti?
+            u3:(~repeat) %error ^stayInScope
+                Che animale ti piacerebbe avere?
+            u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+                ~misunderstanding
+            u3:(["un cane" "_* cani" "un gatto" "_* gatti" "un criceto" "_* criceti"
+                 "un pappagallo" "_* pappagalli" "una tartaruga" "_* tartarughe" "pesciolino rosso"])
+                Magari possiamo consultarci per trovargli un nome! ^endDiscuss(conv)
+        u2:(no)
+            Peccato! A me piacciono tanto! ^endDiscuss(conv)
 
+
+# // ---------------------------------- HARD LEVEL ---------------------------------- //
+
+#1
+proposal: %typical_day_proposal Raccontami come si articola tipicamente la tua giornata.
+    u1:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+        ~misunderstanding
+    u1:(~repeat) %error ^stayInScope
+        Cosa fai di solito durante il giorno?
+    u1:(["La mattina" "Al mattino"] _*)
+        E nel pomeriggio?
+        u2:([La Di] sera _*) %error ^stayInScope
+            Ti chiedevo del pomeriggio!
+        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
+        u2:({[Il Di Nel]} pomeriggio _*)
+            E la sera?
+            u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+                ~misunderstanding
+            u3:([La Di] sera _*)
+                Sembra una giornata molto intensa! ^goto(travel_proposal)
+
+
+#2
+proposal: %travel_proposal Raccontami di un viaggio che hai fatto.
+    u1:(Sono [stata stato] {con i miei amici} a _* {["l'anno scorso" "qualche anno fa"]})
+        Che meta interessante! Quale episodio ricordi con più piacere?
+        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
+        u2:(~repeat) %error ^stayInScope
+            Qual è il ricordo più bello di quel viaggio?
+        u2:(Sicuramente quel giorno _*)
+            Immagino vi siete divertiti tanto! E, se dovessi programmare un viaggio, dove andresti?
+            u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+                ~misunderstanding
+            u3:(~repeat) %error ^stayInScope
+                Dove ti piacerebbe andare?
+            u3:({Sicuramente} a _*)
+                Quanto ti capisco! Letteralmente il viaggio dei miei sogni! ^goto(dish_proposal)
+
+
+#3
+proposal: %dish_proposal Qual è il tuo piatto italiano preferito?
+    u1:(["parmigiana di melanzane" pizza "pasta al pesto" lasagna arancina])
+        Favolosa! Conosci già la ricetta?
+        u2:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+            ~misunderstanding
+        u2:(~repeat) %error ^stayInScope
+            Sai come farla?
+        u2:(si)
+            Spero di poter assaggiare presto la tua versione allora!
+            u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+                ~misunderstanding
+            u3:(~repeat) %error ^stayInScope
+                Sono curioso di provare la tua versione
+            u3:(["Quando vuoi" Volentieri Certo])
+                Ci conto allora! ^endDiscuss(conv)
+        u2:(no)
+            Devi assolutamente rimediare! Anzi, posso mandarti io la ricetta!
+            u3:(_* ~ungrammatical_sentences _*) %error ^stayInScope
+                ~misunderstanding
+            u3:(~repeat) %error ^stayInScope
+                Se vuoi, posso inviarti la mia ricetta nei prossimi giorni!
+            u3:(Grazie {mille})
+                Fammi sapere poi! ^endDiscuss(conv)

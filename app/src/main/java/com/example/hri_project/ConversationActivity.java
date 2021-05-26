@@ -1,12 +1,9 @@
 package com.example.hri_project;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
@@ -17,24 +14,32 @@ import com.aldebaran.qi.sdk.design.activity.RobotActivity;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionImportance;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionValidity;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
+import com.aldebaran.qi.sdk.object.conversation.BookmarkStatus;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
 public class ConversationActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
-    private Toolbar toolbar;
-    private ActionBar ab;
+    private String level;
+    private String proposalOne;
+    private String proposalTwo;
+    private String proposalThree;
+
 
     private Topic topic;
     private Chat conversationChat;
     private QiChatbot qiConversationChatbot;
     private Bookmark proposalBookmark;
+    Map<String, Bookmark> bookmarks;
+
+    private int errors;
+    private boolean passed;
+    private ArrayList<String> testPassed;
+    private int testTaken;
 
     private boolean convLevel;
 
@@ -46,13 +51,12 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
 
         setContentView(R.layout.activity_conversation);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ab = getSupportActionBar();
-        ab.setTitle(R.string.conversation);
-        // To display the arrow that goes back
-        ab.setDisplayHomeAsUpEnabled(true);
+        level = getIntent().getStringExtra("level");
+        Log.i("ConversationActivity", "level "+ level);
 
+        errors = 0;
+        passed = true;
+        testTaken = 1;
     }
 
     @Override
@@ -118,20 +122,76 @@ public class ConversationActivity extends RobotActivity implements RobotLifecycl
     private void manageBookmarks() {
 
         // Get the bookmarks from the topic.
-        Map<String, Bookmark> bookmarks = topic.getBookmarks();
+        bookmarks = topic.getBookmarks();
 
-        // Randomly choose the proposal to start from.
-        List<String> proposal = Arrays.asList("presentation_proposal", "directions_proposal", "shop_proposal");
-        Random rand = new Random();
-        proposalBookmark = bookmarks.get(proposal.get(rand.nextInt(proposal.size())));
+        switch (level) {
+            case "EASY":
+                proposalOne = "presentation_proposal";
+                proposalTwo = "weather_proposal";
+                proposalThree = "directions_proposal";
+                break;
+            case "MEDIUM":
+                proposalOne = "hobby_proposal";
+                proposalTwo = "shop_proposal";
+                proposalThree = "animals_proposal";
+                break;
+            case "HARD":
+                proposalOne = "typical_day_proposal";
+                proposalTwo = "travel_proposal";
+                proposalThree = "dish_proposal";
+                break;
+        }
+
+        // Get the bookmarks of the first proposal.
+        proposalBookmark = bookmarks.get(proposalOne);
+
+        // To manage other proposal
+        Bookmark newProposalBookmark = bookmarks.get(proposalTwo);
+        BookmarkStatus newProposalBookmarkStatus = qiConversationChatbot.bookmarkStatus(newProposalBookmark);
+        newProposalBookmarkStatus.addOnReachedListener(() -> {
+            if (passed) testPassed.add(String.valueOf(passed));
+            testTaken += 1;
+            errors = 0;
+            passed = true;
+        });
+
+        Bookmark lastProposalBookmark = bookmarks.get(proposalThree);
+        BookmarkStatus lastProposalBookmarkStatus = qiConversationChatbot.bookmarkStatus(lastProposalBookmark);
+        lastProposalBookmarkStatus.addOnReachedListener(() -> {
+            if (passed) testPassed.add(String.valueOf(passed));
+            testTaken += 1;
+            errors = 0;
+            passed = true;
+        });
+
+        // To manage errors
+        testPassed = new ArrayList<>();
+        Bookmark errorBookmark = bookmarks.get("error");
+        BookmarkStatus errorBookmarkStatus = qiConversationChatbot.bookmarkStatus(errorBookmark);
+        errorBookmarkStatus.addOnReachedListener(() -> {
+            errors += 1;
+            if (errors >= 3) passed = false;
+            Log.i("ConversationActivity", "errors "+  errors);
+            Log.i("ConversationActivity", "passed "+  passed);
+            Log.i("ConversationActivity", "test #"+  testTaken);
+
+        });
     }
 
     private void startVocabulariesChat() {
 
+
         // Stop the chat when the qichatbot is done
         qiConversationChatbot.addOnEndedListener(endReason -> {
             convLevel = endReason.equals("conv");
-            Log.i("ConversationActivity", "" + convLevel);
+            if (passed) testPassed.add(String.valueOf(passed));
+
+            Log.i("ConversationActivity", "correctTest #"+  testPassed.size());
+
+            Intent intent = new Intent(this, ConversationResultsActivity.class);
+            intent.putStringArrayListExtra("testPassed", testPassed);
+            intent.putExtra("level", level);
+            startActivity(intent);
 
         });
 
