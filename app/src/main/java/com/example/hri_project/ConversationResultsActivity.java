@@ -84,7 +84,7 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
             if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
             else passedPhrase = new Phrase("Congratulations! You are ready for the next level!");
 
-            Intent intent = new Intent(this, ConversationActivity.class);
+            Intent intent = new Intent(this, ChooseLessonActivity.class);
             switch (level) {
                 case "EASY":
                     level = "MEDIUM";

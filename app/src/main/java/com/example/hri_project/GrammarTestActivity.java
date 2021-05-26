@@ -25,7 +25,7 @@ import com.aldebaran.qi.sdk.object.locale.Language;
 import com.aldebaran.qi.sdk.object.locale.Locale;
 import com.aldebaran.qi.sdk.object.locale.Region;
 
-public class GrammarActivity extends RobotActivity implements RobotLifecycleCallbacks {
+public class GrammarTestActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
     // TODOs
     // - make sure fade out listener does not interfere with fadein
@@ -40,17 +40,59 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
     private Button[] choiceButtons = null;
     private TextView sentenceView = null;
     private int fadeDuration;
-    private final String[][] sentences = new String[][] {
-            { "Io ", " pepper." },
-            { "Sono programmato ", "." }
+    private final String[][][] sentences = new String[][][] {
+            {
+                    { "", "Italia." },
+                    { "", " caffè" },
+                    { "", " spaghetti" },
+                    { "", " studentessa" },
+                    { "", "amico" }
+            },
+            {
+                    { "Ogni giorno a colazione ", " un toast con la marmellata" },
+                    { "La prossima settimana Sara e Francesca ", " per Parigi" },
+                    { "Stasera io e Marco ", " sulla collina per guardare il tramonto" },
+                    { "Oggi Susanna lavora molto e ", " a casa tardi" },
+                    { "Il gatto ", " le fusa" }
+            },
+            {
+                    { "Noi "," volentieri alla cena se non dovessimo lavorare" },
+                    { "Se compraste una casa in campagna, non "," così stressati." },
+                    { "Se Ivan ", " a Susanna di sposarlo, lei gli direbbe sicuramente di sì!" },
+                    { "Se conoscessi mia sorella, ", " che è molto simpatica" },
+                    { "Non ", " problemi economici, se spendeste meno soldi." }
+            }
     };
-    private final String[][] choices = new String[][] {
-            { "è", "era", "sono", "sei" },
-            { "benissimo", "benino", "insomma", "male" }
+    private final String[][][] choices = new String[][][] {
+            {
+                    { "La", "L'", "Le", "Il" },
+                    { "Il", "I", "Lo", "La" },
+                    { "I", "Gli", "Lo", "Li" },
+                    { "La", "Il", "Lo", "Gli" },
+                    { "Il", "L'", "I", "Lo" }
+            },
+            {
+                    { "mangio", "mangia", "mangiano", "ho mangiato" },
+                    { "partiremo", "parto", "partiamo", "partono" },
+                    { "salgo", "sale", "salite", "saliamo" },
+                    { "torno", "torna", "torniamo", "torni" },
+                    { "fa", "fanno", "fate", "faccio" }
+            },
+            {
+                    { "veniamo", "verremmo", "venissimo", "verremo" },
+                    { "sareste", "sarei", "foste", "saremo" },
+                    { "chiederebbe", "chiese", "chiede", "chiedesse" },
+                    { "penseresti", "pensassi", "pensi", "penserebbi" },
+                    { "aveste", "avete", "avreste", "avrete" }
+            }
     };
-    private final int[] correctAnswers = new int[] { 2, 0 };
-    private final int buttonBackgroundColor = Color.BLUE;
-    private String level;
+    private final int[][] correctAnswers = new int[][] {
+            { 1, 0, 1, 0, 1 },
+            { 0, 3, 3, 1, 0 },
+            { 1, 0, 3, 0, 2 }
+    };
+    private final int buttonBackgroundColor = Color.GRAY;
+    private int level;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +101,10 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
         setContentView(R.layout.activity_grammar);
 
         Intent intent = getIntent();
-        level = intent.getStringExtra("level");
+        String levelStr = intent.getStringExtra("level");
+        if (levelStr.equals("EASY")) level = 0;
+        else if (levelStr.equals("MEDIUM")) level = 1;
+        else level = 2;
 
         fadeDuration = getResources().getInteger(android.R.integer.config_longAnimTime);
 
@@ -112,11 +157,11 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
     // Helper funcs -------------
 
     private void showNextExerciseUi() {
-        sentenceView.setText(sentences[progress][0] + "..." + sentences[progress][1]);
+        sentenceView.setText(sentences[level][progress][0] + "___" + sentences[level][progress][1]);
         fadeIn(sentenceView, fadeDuration);
         //TODO wait a little
         for (int i = 0; i < choiceButtons.length; i++) {
-            choiceButtons[i].setText(choices[progress][i]);
+            choiceButtons[i].setText(choices[level][progress][i]);
             choiceButtons[i].setBackgroundColor(buttonBackgroundColor);
             fadeIn(choiceButtons[i], fadeDuration);
         }
@@ -134,8 +179,14 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
         for (Button btn: choiceButtons) {
             fadeOut(btn, fadeDuration);
         }
-        sentenceView.setText("Score: " + score + "/" + sentences.length + ". Tap here to restart the exercises.");
-        sentenceView.setOnClickListener(v -> restartExercises());
+        if (score >= 3) {
+            sentenceView.setText("Score: " + score + "/" + sentences[level].length + ". You passed! Tap here to continue.");
+            sentenceView.setOnClickListener(v -> startConversationIntent());
+        } else {
+            sentenceView.setText("Score: " + score + "/" + sentences[level].length + ". Sorry, you failed. Tap here to go back.");
+            sentenceView.setOnClickListener(v -> startChooseLessonIntent());
+        }
+
         fadeIn(sentenceView, fadeDuration);
     }
 
@@ -148,18 +199,18 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
 
     private void giveFeedback(int choice, Runnable afterFeedback) {
         Log.i("TAG", "giving feedback");
-        String feedback = "That's wrong, you fool";
-        if (choice == correctAnswers[progress]) {
+        String feedback = "That's wrong";
+        if (choice == correctAnswers[level][progress]) {
             choiceButtons[choice].setBackgroundColor(Color.GREEN);
             feedback = "That's right, well done";
             score++;
         }
         else choiceButtons[choice].setBackgroundColor(Color.RED);
 
-        String correctSentence = sentences[progress][0] + choices[progress][correctAnswers[progress]] + sentences[progress][1];
+        String correctSentence = sentences[level][progress][0] + choices[level][progress][correctAnswers[level][progress]] + sentences[level][progress][1];
         Spannable spannable = new SpannableString(correctSentence);
-        final int start = sentences[progress][0].length();
-        final int end = start + choices[progress][correctAnswers[progress]].length();
+        final int start = sentences[level][progress][0].length();
+        final int end = start + choices[level][progress][correctAnswers[level][progress]].length();
         spannable.setSpan(new ForegroundColorSpan(Color.GREEN), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         sentenceView.setText(spannable, TextView.BufferType.SPANNABLE);
 
@@ -174,10 +225,31 @@ public class GrammarActivity extends RobotActivity implements RobotLifecycleCall
         giveFeedback(choice, () -> runOnUiThread(() -> {
             hideExerciseUi();
             progress++;
-            if (progress < sentences.length) showNextExerciseUi();
+            if (progress < sentences[level].length) showNextExerciseUi();
             else showScoreUi();
         }));
     }
+
+    private void startConversationIntent() {
+        String levelStr;
+        if (level == 0) levelStr = "EASY";
+        else if (level == 1) levelStr = "MEDIUM";
+        else levelStr = "HARD";
+        Intent chooseLessonIntent = new Intent(this, ConversationActivity.class);
+        chooseLessonIntent.putExtra("level", levelStr);
+        startActivity(chooseLessonIntent);
+    }
+
+    private void startChooseLessonIntent() {
+        String levelStr;
+        if (level == 0) levelStr = "EASY";
+        else if (level == 1) levelStr = "MEDIUM";
+        else levelStr = "HARD";
+        Intent chooseLessonIntent = new Intent(this, ChooseLessonActivity.class);
+        chooseLessonIntent.putExtra("level", levelStr);
+        startActivity(chooseLessonIntent);
+    }
+
 
     // Static helper funcs -----------------
 

@@ -114,7 +114,7 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         if(lessonType.equals("vocabulary")) {
             lessonIntent = new Intent(this, LearnVocabularyActivity.class);
         } else if(lessonType.equals("grammar")) {
-            lessonIntent = new Intent(this, ConversationActivity.class); //////// B U G I A !!!! (solo per test)
+            lessonIntent = new Intent(this, GrammarTestActivity.class);
         } else {
             lessonIntent = new Intent(this, LearnVocabularyActivity.class);
         }

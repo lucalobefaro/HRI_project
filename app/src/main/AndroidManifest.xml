@@ -13,8 +13,10 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".ConversationResultsActivity"></activity>
         <activity android:name=".ObjectRecognitionResults" />
-        <activity android:name=".ObjectRecognitionExercise" /> <!-- android:theme="@style/Theme.HRI_project" -->
-        <activity android:name=".GrammarActivity" />
+        <activity android:name=".ObjectRecognitionExercise" />
+
+        <!-- android:theme="@style/Theme.HRI_project" -->
+        <activity android:name=".GrammarTestActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,13 +31,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity
-            android:name=".ConversationActivity"
-            android:parentActivityName=".ChooseLevelActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChooseLevelActivity" />
-        </activity>
+        <activity android:name=".ConversationActivity"/>
         <activity
             android:name=".LearnVocabularyActivity"
             android:parentActivityName=".ChooseLessonActivity">
