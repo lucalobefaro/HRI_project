@@ -5,16 +5,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.RawRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.AnimateBuilder;
+import com.aldebaran.qi.sdk.builder.AnimationBuilder;
 import com.aldebaran.qi.sdk.builder.ChatBuilder;
 import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
 import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.actuation.Animate;
+import com.aldebaran.qi.sdk.object.actuation.Animation;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionImportance;
 import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionValidity;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
@@ -23,6 +28,9 @@ import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 import java.util.Map;
+import java.util.Random;
+
+import com.example.hri_project.MainActivity;
 
 
 public class ChooseLessonActivity extends RobotActivity implements RobotLifecycleCallbacks, View.OnClickListener {
@@ -31,6 +39,8 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
     private ActionBar ab;
 
     private String level;
+
+    private Integer[] chooseAnims;
 
 
     @Override
@@ -54,6 +64,15 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         findViewById(R.id.vocabulary_button).setOnClickListener(this);
         findViewById(R.id.grammar_button).setOnClickListener(this);
         findViewById(R.id.idioms_button).setOnClickListener(this);
+
+        chooseAnims = new Integer[] {
+                R.raw.question_both_hand_a001,
+                R.raw.question_both_hand_a002,
+                R.raw.question_both_hand_a003,
+                R.raw.question_both_hand_a004,
+                R.raw.question_both_hand_a005,
+                R.raw.question_right_hand_a001
+        };
     }
 
 
@@ -88,6 +107,9 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         // Start the bookmark
         Map<String, Bookmark> bookmarks = choose_lesson_topic.getBookmarks();
         lessonChat.addOnStartedListener(() -> {
+            int rnd = new Random().nextInt(chooseAnims.length);
+            Integer res = chooseAnims[rnd];
+            MainActivity.animateAsync(res, qiContext);
             lessonChatbot.goToBookmark(bookmarks.get("choose_lesson_proposal"), AutonomousReactionImportance.HIGH, AutonomousReactionValidity.IMMEDIATE);
         });
 

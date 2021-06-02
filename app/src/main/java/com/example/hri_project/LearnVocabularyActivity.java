@@ -25,6 +25,7 @@ import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 import java.util.Map;
+import java.util.Random;
 
 public class LearnVocabularyActivity extends RobotActivity implements RobotLifecycleCallbacks, View.OnClickListener {
 
@@ -41,6 +42,9 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
     private BookmarkStatus animalBookmarkStatus;
     private BookmarkStatus objectBookmarkStatus;
     private boolean vocabLevel;
+
+    private Integer[] affirmAnims;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,19 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
         findViewById(R.id.animals_button).setOnClickListener(this);
         findViewById(R.id.objects_button).setOnClickListener(this);
 
+        affirmAnims = new Integer[] {
+                R.raw.affirmation_a001,
+                R.raw.affirmation_a002,
+                R.raw.affirmation_a003,
+                R.raw.affirmation_a004,
+                R.raw.affirmation_a005,
+                R.raw.affirmation_a006,
+                R.raw.affirmation_a007,
+                R.raw.affirmation_a008,
+                R.raw.affirmation_a009,
+                R.raw.affirmation_a010,
+                R.raw.affirmation_a011
+        };
     }
 
     @Override
@@ -124,6 +141,7 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
 
     private void sayProposal() {
         qiVocabulariesChatbot.goToBookmark(proposalBookmark, AutonomousReactionImportance.HIGH, AutonomousReactionValidity.IMMEDIATE);
+
     }
 
     private void createVocabulariesChat(QiContext qiContext) {
@@ -143,7 +161,15 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
                 .build();
 
         // Add an on started listener to the Chat action.
-        vocabulariesChat.addOnStartedListener(this::sayProposal);
+        vocabulariesChat.addOnStartedListener(new Chat.OnStartedListener() {
+            @Override
+            public void onStarted() {
+                int rnd = new Random().nextInt(affirmAnims.length);
+                Integer res = affirmAnims[rnd];
+                MainActivity.animateAsync(res, qiContext);
+                sayProposal();
+            }
+        });
         Log.i("LearnVocabularyActivity", "event: Discussion started.");
 
     }

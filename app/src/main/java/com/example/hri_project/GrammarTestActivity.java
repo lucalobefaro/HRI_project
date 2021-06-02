@@ -25,6 +25,9 @@ import com.aldebaran.qi.sdk.object.locale.Language;
 import com.aldebaran.qi.sdk.object.locale.Locale;
 import com.aldebaran.qi.sdk.object.locale.Region;
 
+import java.util.Random;
+
+
 public class GrammarTestActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
     // TODOs
@@ -95,6 +98,12 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     private final int buttonBackgroundColor = Color.GRAY;
     private int level;
 
+    private Integer[] affirmAnims;
+    private Integer[] posAnims;
+    private Integer[] negAnims;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,6 +133,30 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
             choiceButtons[i].setVisibility(View.GONE);
         }
         sentenceView.setVisibility(View.GONE);
+
+        affirmAnims = new Integer[] {
+                R.raw.affirmation_a001,
+                R.raw.affirmation_a002,
+                R.raw.affirmation_a003,
+                R.raw.affirmation_a004,
+                R.raw.affirmation_a005,
+                R.raw.affirmation_a006,
+                R.raw.affirmation_a007,
+                R.raw.affirmation_a008,
+                R.raw.affirmation_a009,
+                R.raw.affirmation_a010,
+                R.raw.affirmation_a011
+        };
+        posAnims = new Integer[] {
+                R.raw.nicereaction_a001,
+                R.raw.nicereaction_a002
+        };
+        negAnims = new Integer[] {
+                R.raw.negation_both_hands_a001,
+                R.raw.negation_both_hands_a003,
+                R.raw.negation_both_hands_a004,
+                R.raw.negation_both_hands_a005
+        };
     }
 
     @Override
@@ -137,7 +170,12 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     public void onRobotFocusGained(QiContext newQiContext) {
         qiContext = newQiContext;
         Log.i("TAG", "focus gained, starting first exercise");
+
+        int rnd = new Random().nextInt(affirmAnims.length);
+        Integer res = affirmAnims[rnd];
+        MainActivity.animateAsync(res, qiContext);
         say(qiContext, "Let's test your grammar");
+
         progress = 0;
         score = 0;
         runOnUiThread(this::showNextExerciseUi);
@@ -202,9 +240,11 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     private void giveFeedback(int choice, Runnable afterFeedback) {
         Log.i("TAG", "giving feedback");
         String feedback = "That's wrong";
+        Integer[] feedbackAnims = negAnims;
         if (choice == correctAnswers[level][progress]) {
             choiceButtons[choice].setBackgroundColor(Color.GREEN);
             feedback = "That's right, well done";
+            feedbackAnims = posAnims;
             score++;
         }
         else choiceButtons[choice].setBackgroundColor(Color.RED);
@@ -216,6 +256,9 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
         spannable.setSpan(new ForegroundColorSpan(Color.GREEN), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         sentenceView.setText(spannable, TextView.BufferType.SPANNABLE);
 
+        int rnd = new Random().nextInt(feedbackAnims.length);
+        Integer res = feedbackAnims[rnd];
+        MainActivity.animateBuildAsync(res, qiContext);
         //TODO how to stress the correct word?
         sayAsync(qiContext, feedback + ". The correct answer is", null,
                 () -> sayAsync(qiContext, correctSentence, itLocale, afterFeedback));

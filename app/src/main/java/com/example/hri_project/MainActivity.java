@@ -6,17 +6,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.RawRes;
+
 import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.AnimateBuilder;
+import com.aldebaran.qi.sdk.builder.AnimationBuilder;
 import com.aldebaran.qi.sdk.builder.ChatBuilder;
 import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
 import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.actuation.Animate;
+import com.aldebaran.qi.sdk.object.actuation.Animation;
+import com.aldebaran.qi.sdk.object.conversation.Bookmark;
+import com.aldebaran.qi.sdk.object.conversation.BookmarkStatus;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
+
+import java.util.Map;
+import java.util.Random;
 
 
 public class MainActivity extends RobotActivity implements RobotLifecycleCallbacks {
@@ -24,6 +35,8 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     private Chat greetingsChat;
     private QiChatbot qiGreetingsChatbot;
 
+    private BookmarkStatus bookmarkStatus;
+    private Integer[] helloAnims;
 
 
     @Override
@@ -33,6 +46,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         QiSDK.register(this, this);
 
         setContentView(R.layout.activity_main);
+        helloAnims = new Integer[] { R.raw.hello_a002, R.raw.salute_right_b001 };
     }
 
     @Override
@@ -57,6 +71,11 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     public void onRobotFocusLost() {
         // Remove on started listeners from the Chat action.
         greetingsChat.removeAllOnStartedListeners();
+
+        // Remove the listeners on each BookmarkStatus.
+        if (bookmarkStatus != null) {
+            bookmarkStatus.removeAllOnReachedListeners();
+        }
     }
 
     @Override
@@ -82,6 +101,18 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
         // Add an on started listener to the Chat action.
         greetingsChat.addOnStartedListener(() -> Log.i("TAG", "Discussion started."));
+
+        // Get the bookmarks from the topic.
+        Map<String, Bookmark> bookmarks = topic.getBookmarks();
+        // Get the proposal bookmark.
+        Bookmark proposalBookmark = bookmarks.get("greeting");
+        bookmarkStatus = qiGreetingsChatbot.bookmarkStatus(proposalBookmark);
+        bookmarkStatus.addOnReachedListener(() -> {
+            // React when the greeting bookmark is reached.
+            int rnd = new Random().nextInt(helloAnims.length);
+            Integer res = helloAnims[rnd];
+            animateAsync(res, qiContext);
+        });
     }
 
 
@@ -104,6 +135,36 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         });
 
         greetingsChat.async().run();
+    }
+
+    public static void animateAsync(@RawRes Integer animResource, QiContext qiContext) {
+        // Create an animation from the animation resource.
+        Animation animation = AnimationBuilder.with(qiContext)
+                .withResources(animResource)
+                .build();
+
+        // Create an animate action.
+        Animate animate = AnimateBuilder.with(qiContext)
+                .withAnimation(animation)
+                .build();
+
+        // Run the animate action asynchronously.
+        animate.async().run();
+    }
+
+    public static void animateBuildAsync(@RawRes Integer animResource, QiContext qiContext) {
+        // Create an animation from the animation resource.
+        Future<Animation> animationFuture = AnimationBuilder.with(qiContext)
+                .withResources(animResource)
+                .buildAsync();
+
+        animationFuture.andThenConsume(anim -> {
+            // Create an animate action.
+            Future<Animate> animateFuture = AnimateBuilder.with(qiContext)
+                    .withAnimation(anim)
+                    .buildAsync();
+            animateFuture.andThenConsume(animate -> animate.run());
+        });
     }
 
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Random;
 
 
 /*
@@ -108,6 +108,9 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
     private String level;
     private boolean test;
 
+    private Integer[] affirmAnims;
+    private Integer[] posAnims;
+    private Integer[] negAnims;
 
 
     @Override
@@ -156,6 +159,31 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
         }
         Collections.shuffle(randomAccessArray);
         currentExercise = -1;
+
+
+        affirmAnims = new Integer[] {
+                R.raw.affirmation_a001,
+                R.raw.affirmation_a002,
+                R.raw.affirmation_a003,
+                R.raw.affirmation_a004,
+                R.raw.affirmation_a005,
+                R.raw.affirmation_a006,
+                R.raw.affirmation_a007,
+                R.raw.affirmation_a008,
+                R.raw.affirmation_a009,
+                R.raw.affirmation_a010,
+                R.raw.affirmation_a011
+        };
+        posAnims = new Integer[] {
+                R.raw.nicereaction_a001,
+                R.raw.nicereaction_a002
+        };
+        negAnims = new Integer[] {
+                R.raw.negation_both_hands_a001,
+                R.raw.negation_both_hands_a003,
+                R.raw.negation_both_hands_a004,
+                R.raw.negation_both_hands_a005
+        };
     }
 
 
@@ -179,6 +207,9 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
         button4.setOnClickListener(this);
 
         // Start interaction
+        int rnd = new Random().nextInt(affirmAnims.length);
+        Integer res = affirmAnims[rnd];
+        MainActivity.animateAsync(res, qiContext);
         Phrase interactionPhrase = new Phrase("Let's start!");
         Say interactionSay = SayBuilder.with(qiContext)
                 .withPhrase(interactionPhrase)
@@ -220,10 +251,13 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
 
         // Interact with the user
         Phrase interactionPhrase;
+        Integer[] feedbackAnims;
         if(correct) {
             interactionPhrase = new Phrase("Great!");
+            feedbackAnims = posAnims;
         } else {
             interactionPhrase = new Phrase("Maybe you need to study this word again.");
+            feedbackAnims = negAnims;
         }
         Future<Say> interactionSay = SayBuilder.with(myQiContext)
                 .withPhrase(interactionPhrase)
@@ -232,6 +266,9 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
             say.run();
             runOnUiThread( () -> updateInterface() );
         });
+        int rnd = new Random().nextInt(feedbackAnims.length);
+        Integer res = feedbackAnims[rnd];
+        MainActivity.animateBuildAsync(res, myQiContext);
     }
 
 

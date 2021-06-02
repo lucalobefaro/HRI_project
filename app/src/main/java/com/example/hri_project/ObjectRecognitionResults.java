@@ -24,6 +24,8 @@ import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
 import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
+import java.util.Random;
+
 public class ObjectRecognitionResults extends RobotActivity implements RobotLifecycleCallbacks {
 
     private int correctAnswers;
@@ -35,7 +37,8 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
     private int happyFaceImage = R.drawable.happy_face;
     private int sadFaceImage = R.drawable.sad_face;
 
-
+    private Integer[] posAnims;
+    private Integer[] negAnims;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +74,16 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
             startNextActivity();
         });
 
+        posAnims = new Integer[] {
+                R.raw.nicereaction_a001,
+                R.raw.nicereaction_a002
+        };
+        negAnims = new Integer[] {
+                R.raw.negation_both_hands_a001,
+                R.raw.negation_both_hands_a003,
+                R.raw.negation_both_hands_a004,
+                R.raw.negation_both_hands_a005
+        };
     }
 
 
@@ -94,11 +107,17 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
 
         // Say if the exercise is passed
         Phrase passedPhrase;
+        Integer[] feedbackAnims;
         if(passed) {
             passedPhrase = new Phrase("Congratulation, you passed this exercise!");
+            feedbackAnims = posAnims;
         } else {
-            passedPhrase = new Phrase("I'm sorry, you don't pass the exercise, you need to study a little bit more.");
+            passedPhrase = new Phrase("I'm sorry, you didn't pass the exercise, you need to study a little bit more.");
+            feedbackAnims = negAnims;
         }
+        int rnd = new Random().nextInt(feedbackAnims.length);
+        Integer res = feedbackAnims[rnd];
+        MainActivity.animateAsync(res, qiContext);
         Say passedSay = SayBuilder.with(qiContext)
                 .withPhrase(passedPhrase)
                 .build();

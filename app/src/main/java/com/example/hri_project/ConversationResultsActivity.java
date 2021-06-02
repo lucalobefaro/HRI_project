@@ -24,6 +24,7 @@ import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ConversationResultsActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
@@ -37,7 +38,8 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
     private int happyFaceImage = R.drawable.happy_face;
     private int sadFaceImage = R.drawable.sad_face;
 
-
+    private Integer[] posAnims;
+    private Integer[] negAnims;
 
     @SuppressLint("LongLogTag")
     @Override
@@ -73,6 +75,17 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
             startNextActivity();
         });
 
+        posAnims = new Integer[] {
+                R.raw.nicereaction_a001,
+                R.raw.nicereaction_a002
+        };
+        negAnims = new Integer[] {
+                R.raw.negation_both_hands_a001,
+                R.raw.negation_both_hands_a003,
+                R.raw.negation_both_hands_a004,
+                R.raw.negation_both_hands_a005
+        };
+
     }
 
 
@@ -98,11 +111,19 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
         // Say if the exercise is passed
         Phrase passedPhrase;
 
+        Integer[] feedbackAnims;
         if(passedLevel) {
             if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
             else passedPhrase = new Phrase("Congratulations! You are ready for the next level!");
-        } else
+            feedbackAnims = posAnims;
+        } else {
             passedPhrase = new Phrase("I'm sorry, you need to practice more");
+            feedbackAnims = negAnims;
+        }
+
+        int rnd = new Random().nextInt(feedbackAnims.length);
+        Integer res = feedbackAnims[rnd];
+        MainActivity.animateAsync(res, qiContext);
 
         Say passedSay = SayBuilder.with(qiContext)
                 .withPhrase(passedPhrase)

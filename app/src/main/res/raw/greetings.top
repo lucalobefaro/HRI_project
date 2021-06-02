@@ -3,7 +3,7 @@ topic: ~greetings()
 concept:(hello) [hello hi hey "good morning" greetings]
 
 # Replying to speech
-u:(~hello Pepper)
+u:(~hello Pepper) %greeting
     ~hello human, I am here to teach you Italian.
     I need to know your level before starting.
     Do you want to choose your level or do you want to test it?
