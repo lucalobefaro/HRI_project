@@ -13,15 +13,19 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <!-- android:theme="@style/Theme.HRI_project" -->
         <activity android:name=".FinalActivity" />
+        <activity android:name=".SetPhrasesLesson"></activity>
         <activity android:name=".ConversationActivity" />
         <activity android:name=".ConversationResultsActivity" />
         <activity android:name=".ObjectRecognitionResults" />
         <activity android:name=".ObjectRecognitionExercise" />
-        <activity android:name=".GrammarLesson" />
-        <activity android:name=".GrammarTestActivity" />
+
+        <!-- android:theme="@style/Theme.HRI_project" -->
+        <activity android:name=".GrammarLesson"></activity>
+        <activity android:name=".GrammarTestActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

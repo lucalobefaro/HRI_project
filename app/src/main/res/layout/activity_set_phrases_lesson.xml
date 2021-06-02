@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GrammarLesson">
+    tools:context=".SetPhrasesLesson">
 
     <TextView
-        android:id="@+id/grammar_sentence_textview"
+        android:id="@+id/set_phrases_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/continue_button_2"
+        android:id="@+id/continue_button_3"
         android:layout_width="160dp"
         android:layout_height="80dp"
         android:layout_marginBottom="200dp"

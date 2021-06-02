@@ -24,7 +24,6 @@ import com.aldebaran.qi.sdk.object.conversation.Topic;
 public class GrammarLesson extends RobotActivity implements RobotLifecycleCallbacks {
 
     private QiContext myQiContext;
-    private Chat continueChat;
     private String level;
     private String[] grammarSentences;
     private String[] grammarExplanations;
@@ -37,38 +36,40 @@ public class GrammarLesson extends RobotActivity implements RobotLifecycleCallba
 
     // EASY LEVEL --------------------------------------------------------
     private String[] easyGrammarSentences = {
-            "Sentence one",
-            "Sencence two",
-            "Sentence three"
+            "Il caffè e la gallina.",
+            "I caffè e le galline",
+            "L'italia"
     };
     private String[] easyGrammarExplanations = {
-            "Explanation one",
-            "Explanation two",
-            "Explanation three"
+            "These articles are used to indicate the singular names, male and female.",
+            "These articles, instead, are used for the plural, male and female.",
+            "This article is used for both genres when the word starts with a vocal"
     };
 
     // MEDIUM LEVEL ------------------------------------------------------
     private String[] mediumGrammarSentences = {
-            "Sentence one",
-            "Sencence two",
-            "Sentence three"
+            "Io mangio il pane.",
+            "Loro partono per la Germania",
+            "Noi saliamo sulla montagna"
     };
     private String[] mediumGrammarExplanations = {
-            "Explanation one",
-            "Explanation two",
-            "Explanation three"
+            "In this lesson we'll see the present verbs with some examples. " +
+                    "This one means I heat the bread.",
+            "This one means They leave for Germany.",
+            "This one means We go up the mountain"
     };
 
     // HARD LEVEL --------------------------------------------------------
     private String[] hardGrammarSentences = {
-            "Sentence one",
-            "Sencence two",
-            "Sentence three"
+            "Noi verremmo in campeggio se potessimo",
+            "Se ti piacesse studieresti meglio",
+            "Se lui le chiedesse di giocare accetterebbe"
     };
     private String[] hardGrammarExplanations = {
-            "Explanation one",
-            "Explanation two",
-            "Explanation three"
+            "In this lesson we'll see the conditional verbs with some examples. " +
+                    "This one means We would come camping if we could",
+            "This one means If you liked it you would study better",
+            "This one means If he asked her to play, she would accept"
     };
 
 
