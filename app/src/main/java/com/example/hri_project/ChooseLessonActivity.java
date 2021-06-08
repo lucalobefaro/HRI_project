@@ -1,7 +1,10 @@
 package com.example.hri_project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -42,6 +45,7 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
 
     private Integer[] chooseAnims;
 
+    private boolean allLessonPassed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,21 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
                 R.raw.question_both_hand_a005,
                 R.raw.question_right_hand_a001
         };
+
+        // Check if all the lesson are passed for the current level
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean vocabularyLessonPassed = sharedPref.getBoolean(level.concat("Vocabularies"), false);
+        boolean grammarLessonPassed = sharedPref.getBoolean(level.concat("Grammar"), false);
+        boolean setPhrasesLessonPassed = sharedPref.getBoolean(level.concat("SetPhrases"), false);
+        if(vocabularyLessonPassed && grammarLessonPassed && setPhrasesLessonPassed) {
+            allLessonPassed = true;
+        } else {
+            allLessonPassed = false;
+        }
+
+        Log.i("VOCAB LESSON PASSES", Boolean.toString(vocabularyLessonPassed));
+        Log.i("GRAMMAR LESSON PASSES", Boolean.toString(grammarLessonPassed));
+        Log.i("PHRASES LESSON PASSES", Boolean.toString(setPhrasesLessonPassed));
     }
 
 
@@ -110,7 +129,15 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
             int rnd = new Random().nextInt(chooseAnims.length);
             Integer res = chooseAnims[rnd];
             MainActivity.animateAsync(res, qiContext);
-            lessonChatbot.goToBookmark(bookmarks.get("choose_lesson_proposal"), AutonomousReactionImportance.HIGH, AutonomousReactionValidity.IMMEDIATE);
+
+            // To behave in a different way when all the lessons are passed
+            String bookmark;
+            if(allLessonPassed){
+                bookmark = "choose_lesson_proposal_ready_to_test";
+            } else {
+                bookmark = "choose_lesson_proposal";
+            }
+            lessonChatbot.goToBookmark(bookmarks.get(bookmark), AutonomousReactionImportance.HIGH, AutonomousReactionValidity.IMMEDIATE);
         });
 
         // Add an on started listener to the Chat action.

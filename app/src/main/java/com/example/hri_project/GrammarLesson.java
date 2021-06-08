@@ -1,7 +1,9 @@
 package com.example.hri_project;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -159,6 +161,12 @@ public class GrammarLesson extends RobotActivity implements RobotLifecycleCallba
 
 
     private void startChooseLessonIntent() {
+        // Set this lesson as passed
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(level.concat("Grammar"), true);
+        editor.commit();
+
         Intent chooseLessonIntent = new Intent(this, ChooseLessonActivity.class);
         chooseLessonIntent.putExtra("level", level);
         startActivity(chooseLessonIntent);

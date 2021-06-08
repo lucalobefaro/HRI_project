@@ -8,3 +8,11 @@ If you are ready to go to the next level, let me know and I will test you.
     u1:(grammar) ^endDiscuss(grammar)
     u1:(set phrases) ^endDiscuss(set phrases)
     u1:(~test) ^endDiscuss(test)
+
+proposal: %choose_lesson_proposal_ready_to_test You studied all the lessons, I think you are ready
+to test yourself for the next level. You can also choose to repeat some lesson. When you
+are ready to go to the next level let me know and I will test you.
+    u1:(vocabulary) ^endDiscuss(vocabulary)
+    u1:(grammar) ^endDiscuss(grammar)
+    u1:(set phrases) ^endDiscuss(set phrases)
+    u1:(~test) ^endDiscuss(test)
