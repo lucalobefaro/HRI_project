@@ -80,9 +80,10 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
 
         // Check if all the lesson are passed for the current level
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean vocabularyLessonPassed = sharedPref.getBoolean(level.concat("Vocabularies"), false);
-        boolean grammarLessonPassed = sharedPref.getBoolean(level.concat("Grammar"), false);
-        boolean setPhrasesLessonPassed = sharedPref.getBoolean(level.concat("SetPhrases"), false);
+        String userName = sharedPref.getString("currentUser", "");
+        boolean vocabularyLessonPassed = sharedPref.getBoolean(userName.concat("_").concat(level).concat("_Vocabularies"), false);
+        boolean grammarLessonPassed = sharedPref.getBoolean(userName.concat("_").concat(level).concat("_Grammar"), false);
+        boolean setPhrasesLessonPassed = sharedPref.getBoolean(userName.concat("_").concat(level).concat("_SetPhrases"), false);
         if(vocabularyLessonPassed && grammarLessonPassed && setPhrasesLessonPassed) {
             allLessonPassed = true;
         } else {
@@ -92,6 +93,11 @@ public class ChooseLessonActivity extends RobotActivity implements RobotLifecycl
         Log.i("VOCAB LESSON PASSES", Boolean.toString(vocabularyLessonPassed));
         Log.i("GRAMMAR LESSON PASSES", Boolean.toString(grammarLessonPassed));
         Log.i("PHRASES LESSON PASSES", Boolean.toString(setPhrasesLessonPassed));
+
+        // Take note of the user level
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(userName.concat("_level"), level);
+        editor.commit();
     }
 
 

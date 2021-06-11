@@ -96,7 +96,8 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
         // Set this lesson as passed
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(level.concat("Vocabularies"), true);
+        String userName = sharedPref.getString("currentUser", "");
+        editor.putBoolean(userName.concat("_").concat(level).concat("_Vocabularies"), true);
         editor.commit();
     }
 

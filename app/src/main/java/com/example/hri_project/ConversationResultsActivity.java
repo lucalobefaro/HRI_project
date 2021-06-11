@@ -113,11 +113,15 @@ public class ConversationResultsActivity extends RobotActivity implements RobotL
 
         Integer[] feedbackAnims;
         if(passedLevel) {
-            if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
-            else passedPhrase = new Phrase("Congratulations! You are ready for the next level!");
+            if(test && !level.equals("HARD")) passedPhrase = new Phrase("Great, I underestimated you. " +
+                    "I need to test you again, but this time will be a little more difficult!");
+            else if(level.equals("HARD")) passedPhrase = new Phrase("Congratulations!");
+            else passedPhrase = new Phrase("Congratulations! It's time to offer you new, more challenging lessons!");
             feedbackAnims = posAnims;
         } else {
-            passedPhrase = new Phrase("I'm sorry, you need to practice more");
+            if(test) passedPhrase = new Phrase("But don't worry, now I know your Italian level, " +
+                    "it's time to learn something new!  Let's do some lesson.");
+            else passedPhrase = new Phrase("I'm sorry, you need to practice more");
             feedbackAnims = negAnims;
         }
 

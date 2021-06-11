@@ -112,7 +112,9 @@ public class ObjectRecognitionResults extends RobotActivity implements RobotLife
             passedPhrase = new Phrase("Congratulation, you passed this exercise!");
             feedbackAnims = posAnims;
         } else {
-            passedPhrase = new Phrase("I'm sorry, you didn't pass the exercise, you need to study a little bit more.");
+            if(test) passedPhrase = new Phrase("I'm sorry, you didn't pass the exercise. " +
+                    "But don't worry, now I know your Italian level, it's time to learn something new! Let's do some lesson.");
+            else passedPhrase = new Phrase("I'm sorry, you didn't pass the exercise, you need to study a little bit more.");
             feedbackAnims = negAnims;
         }
         int rnd = new Random().nextInt(feedbackAnims.length);

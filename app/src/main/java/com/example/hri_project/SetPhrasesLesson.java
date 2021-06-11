@@ -162,7 +162,8 @@ public class SetPhrasesLesson extends RobotActivity implements RobotLifecycleCal
         // Set this lesson as passed
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(level.concat("SetPhrases"), true);
+        String userName = sharedPref.getString("currentUser", "");
+        editor.putBoolean(userName.concat("_").concat(level).concat("_SetPhrases"), true);
         editor.commit();
 
         Intent chooseLessonIntent = new Intent(this, ChooseLessonActivity.class);

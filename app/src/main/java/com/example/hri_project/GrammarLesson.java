@@ -164,7 +164,8 @@ public class GrammarLesson extends RobotActivity implements RobotLifecycleCallba
         // Set this lesson as passed
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(level.concat("Grammar"), true);
+        String userName = sharedPref.getString("currentUser", "");
+        editor.putBoolean(userName.concat("_").concat(level).concat("_Grammar"), true);
         editor.commit();
 
         Intent chooseLessonIntent = new Intent(this, ChooseLessonActivity.class);

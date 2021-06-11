@@ -1,11 +1,15 @@
 topic: ~greetings()
 # Defining extra concepts out of words or group of words
 concept:(hello) [hello hi hey "good morning" greetings]
+concept:(Iam) ["I am" "I'm" "my name is"]
 
-# Replying to speech
-u:(~hello Pepper) %greeting
-    ~hello human, I am here to teach you Italian.
-    I need to know your level before starting.
-    Do you want to choose your level or do you want to test it?
-    u1:({I want to} test {it}) Ok let's test it. ^endDiscuss(test)
-    u1:({I want to} choose {it}) Ok let's choose it. ^endDiscuss(choose)
+# The first interaction
+u:(~hello Pepper ~Iam _*) %greeting
+    ~hello $1 ^endDiscuss($1)
+
+# The "explaination" interaction for new users
+proposal: I am here to teach you Italian. %explaination
+          I need to know your level before starting.
+          Do you want to choose your level or do you want to test it?
+          u1:({I want to} test {it}) Ok let's test it. ^endDiscuss(test)
+          u1:({I want to} choose {it}) Ok let's choose it. ^endDiscuss(choose)

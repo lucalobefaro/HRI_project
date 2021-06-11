@@ -18,24 +18,36 @@ import com.aldebaran.qi.sdk.builder.AnimateBuilder;
 import com.aldebaran.qi.sdk.builder.AnimationBuilder;
 import com.aldebaran.qi.sdk.builder.ChatBuilder;
 import com.aldebaran.qi.sdk.builder.QiChatbotBuilder;
+import com.aldebaran.qi.sdk.builder.SayBuilder;
 import com.aldebaran.qi.sdk.builder.TopicBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
 import com.aldebaran.qi.sdk.object.actuation.Animate;
 import com.aldebaran.qi.sdk.object.actuation.Animation;
+import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionImportance;
+import com.aldebaran.qi.sdk.object.conversation.AutonomousReactionValidity;
 import com.aldebaran.qi.sdk.object.conversation.Bookmark;
 import com.aldebaran.qi.sdk.object.conversation.BookmarkStatus;
 import com.aldebaran.qi.sdk.object.conversation.Chat;
+import com.aldebaran.qi.sdk.object.conversation.Phrase;
 import com.aldebaran.qi.sdk.object.conversation.QiChatbot;
+import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 
 public class MainActivity extends RobotActivity implements RobotLifecycleCallbacks {
 
+    private Topic topic;
+    private QiContext myQiContext;
     private Chat greetingsChat;
     private QiChatbot qiGreetingsChatbot;
+    private Future<Void> fGreetingsChat;
+    private Chat chooseWayChat;
+    private QiChatbot qiChooseWayChatbot;
 
     private BookmarkStatus bookmarkStatus;
     private Integer[] helloAnims;
@@ -50,11 +62,14 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
         setContentView(R.layout.activity_main);
         helloAnims = new Integer[] { R.raw.hello_a002, R.raw.salute_right_b001 };
 
+        // DEBUG: TO CLEAR PREFERENCES
+        /*
         // Remove all the registered information about lessons passed
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.clear();
         editor.commit();
+        */
     }
 
     @Override
@@ -67,11 +82,14 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
 
+        // Save the context
+        myQiContext = qiContext;
+
         // Initialize all the chats
         createGreetingsChat(qiContext);
 
         // Run the greetings chat
-        startGreetingsChat();
+        startGreetingsChat("greeting");
 
     }
 
@@ -93,7 +111,7 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
 
     private void createGreetingsChat(QiContext qiContext) {
         // The robot focus is gained.
-        Topic topic = TopicBuilder.with(qiContext)      // Create the builder using the qiContext
+        topic = TopicBuilder.with(qiContext)      // Create the builder using the qiContext
                 .withResource(R.raw.greetings)          // Set the topic resource.
                 .build();                               // Build the topic
 
@@ -124,26 +142,103 @@ public class MainActivity extends RobotActivity implements RobotLifecycleCallbac
     }
 
 
-    private void startGreetingsChat() {
+    private void startGreetingsChat(String bookmarkName) {
 
-        // Stop the chat when the qichatbot is done
-        qiGreetingsChatbot.addOnEndedListener(endReason -> {
-            if(endReason.equals("test")) {
-                // Start test level activity
-                Intent testIntent = new Intent(this, ObjectRecognitionExercise.class);
-                testIntent.putExtra("level", "EASY");
-                testIntent.putExtra("test", true);
-                startActivity(testIntent);
+        if(bookmarkName.equals("explaination")) {
+            qiGreetingsChatbot.addOnEndedListener(endReason -> {
+                if(endReason.equals("test")) {
+                    // Start test level activity
+                    Intent testIntent = new Intent(this, ObjectRecognitionExercise.class);
+                    testIntent.putExtra("level", "EASY");
+                    testIntent.putExtra("test", true);
+                    startActivity(testIntent);
 
-            } else {
-                // Start choose level activity
-                Intent chooseLevelIntent = new Intent(this, ChooseLevelActivity.class);
-                startActivity(chooseLevelIntent);
-            }
-        });
+                } else {
+                    // Start choose level activity
+                    Intent chooseLevelIntent = new Intent(this, ChooseLevelActivity.class);
+                    startActivity(chooseLevelIntent);
+                }
+            });
 
-        greetingsChat.async().run();
+            greetingsChat.addOnStartedListener( () -> {
+                Map<String, Bookmark> bookmarks = topic.getBookmarks();
+                qiGreetingsChatbot.goToBookmark(bookmarks.get(bookmarkName), AutonomousReactionImportance.HIGH, AutonomousReactionValidity.IMMEDIATE);
+            });
+
+        } else {
+            qiGreetingsChatbot.addOnEndedListener(endReason -> {
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+
+                // Save the user name as the current user name
+                String userName = endReason;
+                editor.putString("currentUser", userName);
+                editor.commit();
+
+                // Load the set containing all the already known users
+                Set<String> savedUsers = sharedPref.getStringSet("savedUsers", new HashSet<String>());
+
+                // Check if we already know this user, load its level and start the correct activity
+                if(savedUsers.contains(userName)) {
+
+                    // Get the level
+                    String level = sharedPref.getString(userName.concat("_level"), "EASY");
+
+                    // Close the chat
+                    fGreetingsChat.requestCancellation();
+
+                    // Deal with "old" users
+                    runOnUiThread( () -> dealWithOldUsers(level));
+                }
+
+                // Otherwise save the user and start the new chat
+                else {
+
+                    // Save this user
+                    savedUsers.add(userName);
+                    editor.putStringSet("savedUsers", savedUsers);
+                    editor.commit();
+
+                    // Close the chat
+                    fGreetingsChat.requestCancellation();
+
+                    // Deal with "new" user
+                    dealWithNewUsers();
+                }
+            });
+        }
+
+        // Start the chat
+        fGreetingsChat = greetingsChat.async().run();
     }
+
+
+    private void dealWithOldUsers(String level) {
+        Log.i("DEBUG: ", "old user");
+
+        // Say something
+        Phrase explanationPhrase = new Phrase("I already know you! Well, don't waste our time, " +
+                "I've prepared some lesson for you!");
+        Future<Say> explanationSay = SayBuilder.with(myQiContext)
+                .withPhrase(explanationPhrase)
+                .buildAsync();
+        explanationSay.andThenConsume( say -> {
+            say.run();
+            // Start the choose lesson intent
+            Intent chooseLessonIntent = new Intent(this, ChooseLessonActivity.class);
+            chooseLessonIntent.putExtra("level", level);
+            startActivity(chooseLessonIntent);
+        });
+    }
+
+
+    private void dealWithNewUsers() {
+        Log.i("DEBUG: ", "new user");
+
+        createGreetingsChat(myQiContext);
+        startGreetingsChat("explaination");
+    }
+
 
     public static void animateAsync(@RawRes Integer animResource, QiContext qiContext) {
         // Create an animation from the animation resource.
