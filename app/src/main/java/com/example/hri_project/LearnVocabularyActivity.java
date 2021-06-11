@@ -188,31 +188,11 @@ public class LearnVocabularyActivity extends RobotActivity implements RobotLifec
         // Get the bookmarks from the topic.
         Map<String, Bookmark> bookmarks = topic.getBookmarks();
 
-        String vocabProposal = null;
-        String strFoodBookmark = null, strAnimalBookmark = null, strObjectBookmark = null;
-
-        if(level.equals("EASY")){
-            vocabProposal = "easy_vocab_proposal";
-            strFoodBookmark = "easy_food_bookmark";
-            strAnimalBookmark = "easy_animal_bookmark";
-            strObjectBookmark = "easy_object_bookmark";
-        } else if(level.equals("MEDIUM")){
-            vocabProposal = "medium_vocab_proposal";
-            strFoodBookmark = "medium_food_bookmark";
-            strAnimalBookmark = "medium_animal_bookmark";
-            strObjectBookmark = "medium_object_bookmark";
-        } else {
-            vocabProposal = "hard_vocab_proposal";
-            strFoodBookmark = "hard_food_bookmark";
-            strAnimalBookmark = "hard_animal_bookmark";
-            strObjectBookmark = "hard_object_bookmark";
-        }
-
         // Get the proposal bookmark and all the others.
-        proposalBookmark = bookmarks.get(vocabProposal);
-        Bookmark foodBookmark = bookmarks.get(strFoodBookmark);
-        Bookmark animalBookmark = bookmarks.get(strAnimalBookmark);
-        Bookmark objectBookmark = bookmarks.get(strObjectBookmark);
+        proposalBookmark = bookmarks.get("category_proposal");
+        Bookmark foodBookmark = bookmarks.get("food_bookmark");
+        Bookmark animalBookmark = bookmarks.get("animal_bookmark");
+        Bookmark objectBookmark = bookmarks.get("object_bookmark");
 
         // Create a BookmarkStatus for each bookmark.
         foodBookmarkStatus = qiVocabulariesChatbot.bookmarkStatus(foodBookmark);

@@ -90,12 +90,18 @@ proposal: %hobby_proposal Let's start! Cosa ti piace fare nel tempo libero?
         ~misunderstanding
     u1:(~repeat) %error ^stayInScope
         Quando puoi prenderti una pausa, quali sono i tuoi interessi?
-    u1:({["Faccio" "Pratico"]} [nuoto tennis basket])
-        Si vede che sei una persona sportiva infatti! ~again ^goto(shop_proposal)
+    u1:("{[Faccio Pratico]} sport")
+        Quale sport?
+        u2:([nuoto tennis basket])
+            Da quanto tempo?
+            u3:(["_* [mesi anni]" "da quando ero ["{una} bambina" "{un} bambino"]"])
+                Si vede che sei una persona atletica infatti! ~again ^goto(shop_proposal)
     u1:({["Mi piace" "Amo"]} viaggiare)
         Avrai visitato tantissimi posti! Che bello!! ~again ^goto(shop_proposal)
-    u1:({["Mi piace" "Amo" "Suono"]} {suonare} _* [chitarra piano basso violino batteria])
-        Anche io sono amante della musica e del ritmo! ~again ^goto(shop_proposal)
+    u1:({["Mi piace" "Amo" "Suono"]} {suonare})
+        E quale strumento suoni?
+        u2:(_* [chitarra piano basso violino batteria])
+            Anche io sono amante della musica e del ritmo! ~again ^goto(shop_proposal)
 
 
 #2
