@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+
 import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -24,6 +27,9 @@ import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.conversation.Topic;
 
 public class GrammarLesson extends RobotActivity implements RobotLifecycleCallbacks {
+
+    private Toolbar toolbar;
+    private ActionBar ab;
 
     private QiContext myQiContext;
     private String level;
@@ -111,6 +117,21 @@ public class GrammarLesson extends RobotActivity implements RobotLifecycleCallba
         // Add the continue button listener
         continue_button.setOnClickListener( (View v) -> {
             continueDealer();
+        });
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ab = getSupportActionBar();
+        ab.setTitle(R.string.learn_vocabulary);
+        // To display the arrow that goes back
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        // Otherwise, going back, loses the info of the current level
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startChooseLessonIntent();
+            }
         });
     }
 

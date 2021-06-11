@@ -1,6 +1,8 @@
 package com.example.hri_project;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +24,9 @@ import com.aldebaran.qi.sdk.object.conversation.Phrase;
 import com.aldebaran.qi.sdk.object.conversation.Say;
 
 public class SetPhrasesLesson extends RobotActivity implements RobotLifecycleCallbacks {
+
+    private Toolbar toolbar;
+    private ActionBar ab;
 
     private QiContext myQiContext;
     private String level;
@@ -109,6 +114,20 @@ public class SetPhrasesLesson extends RobotActivity implements RobotLifecycleCal
             continueDealer();
         });
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ab = getSupportActionBar();
+        ab.setTitle(R.string.learn_vocabulary);
+        // To display the arrow that goes back
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        // Otherwise, going back, loses the info of the current level
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startChooseLessonIntent();
+            }
+        });
     }
 
 
