@@ -1,6 +1,7 @@
 package com.example.hri_project;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,10 +12,18 @@ import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.ListenBuilder;
+import com.aldebaran.qi.sdk.builder.PhraseSetBuilder;
 import com.aldebaran.qi.sdk.builder.SayBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.conversation.Listen;
+import com.aldebaran.qi.sdk.object.conversation.ListenResult;
 import com.aldebaran.qi.sdk.object.conversation.Phrase;
+import com.aldebaran.qi.sdk.object.conversation.PhraseSet;
 import com.aldebaran.qi.sdk.object.conversation.Say;
+import com.aldebaran.qi.sdk.object.locale.Language;
+import com.aldebaran.qi.sdk.object.locale.Locale;
+import com.aldebaran.qi.sdk.object.locale.Region;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,6 +121,10 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
     private Integer[] posAnims;
     private Integer[] negAnims;
 
+    private final int buttonBackgroundColor = 0xFF464141;
+    private final Locale itLocale = new Locale(Language.ITALIAN, Region.ITALY);
+    private Future<ListenResult> listenResultFuture;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +138,11 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
         button2 = findViewById(R.id.button2);
         button3 = findViewById(R.id.button3);
         button4 = findViewById(R.id.button4);
+
+        button1.setBackgroundColor(buttonBackgroundColor);
+        button2.setBackgroundColor(buttonBackgroundColor);
+        button3.setBackgroundColor(buttonBackgroundColor);
+        button4.setBackgroundColor(buttonBackgroundColor);
 
         // Get the level
         Intent myIntent = getIntent();
@@ -236,6 +254,8 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
     @Override
     public void onClick(View v) {
 
+        if (listenResultFuture != null && !listenResultFuture.isCancelled()) listenResultFuture.requestCancellation();
+
         // Get the correct answer
         int currentExerciseIdx = randomAccessArray.get(currentExercise);
         String correctAnswer = answers[currentExerciseIdx][0];
@@ -252,13 +272,17 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
         // Interact with the user
         Phrase interactionPhrase;
         Integer[] feedbackAnims;
+        Integer newColor;
         if(correct) {
             interactionPhrase = new Phrase("Great!");
             feedbackAnims = posAnims;
+            newColor = Color.GREEN;
         } else {
             interactionPhrase = new Phrase("Maybe you need to study this word again.");
             feedbackAnims = negAnims;
+            newColor = Color.RED;
         }
+        ((Button) v).setBackgroundColor(newColor);
         Future<Say> interactionSay = SayBuilder.with(myQiContext)
                 .withPhrase(interactionPhrase)
                 .buildAsync();
@@ -298,6 +322,13 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
             button3.setText(currentExerciseAnswers.get(2));
             button4.setText(currentExerciseAnswers.get(3));
 
+            button1.setBackgroundColor(buttonBackgroundColor);
+            button2.setBackgroundColor(buttonBackgroundColor);
+            button3.setBackgroundColor(buttonBackgroundColor);
+            button4.setBackgroundColor(buttonBackgroundColor);
+
+            if (listenResultFuture != null) Log.d("TAG", "is cancelled:" + listenResultFuture.isCancelled());
+
             // Ask the question to the user
             Phrase interactionPhrase = new Phrase("What is the italian word for "
                                                     .concat(englishWords[currentExerciseIdx]).concat("?"));
@@ -305,9 +336,48 @@ public class ObjectRecognitionExercise extends RobotActivity implements RobotLif
                     .withPhrase(interactionPhrase)
                     .buildAsync();
             interactionSay.andThenConsume( say -> {
-                say.run();
-            });
 
+                say.run();
+
+                // Listen for the answer
+                String ans1 = currentExerciseAnswers.get(0);
+                String ans2 = currentExerciseAnswers.get(1);
+                String ans3 = currentExerciseAnswers.get(2);
+                String ans4 = currentExerciseAnswers.get(3);
+
+                Future<PhraseSet> phraseSetFuture = PhraseSetBuilder.with(myQiContext) // Create the builder using the QiContext.
+                        .withTexts(ans1, ans2, ans3, ans4) // Add the phrases Pepper will listen to.
+                        .buildAsync(); // Build the PhraseSet.
+
+                phraseSetFuture.andThenConsume(phraseSet -> {
+
+                    // Create a new listen action.
+                    Future<Listen> listenFuture = ListenBuilder.with(myQiContext) // Create the builder with the QiContext.
+                            .withPhraseSets(phraseSet) // Set the PhraseSets to listen to.
+                            .withLocale(itLocale)
+                            .buildAsync(); // Build the listen actions
+
+                    listenFuture.andThenConsume(listen -> {
+                        // Run the listen action and get the result.
+                        listenResultFuture = listen.async().run();
+
+                        listenResultFuture.andThenConsume(listenResult -> {
+                            String ans = listenResult.getHeardPhrase().getText();
+                            ans = ans.replaceAll("\\s+","");
+                            Log.i("TAG", "student answered verbally: " + ans);
+                            Button ansBtn = null;
+                            if (ans.equals(ans1)) ansBtn = button1;
+                            else if (ans.equals(ans2)) ansBtn = button2;
+                            else if (ans.equals(ans3)) ansBtn = button3;
+                            else if (ans.equals(ans4)) ansBtn = button4;
+
+                            Button finalAnsBtn = ansBtn;
+                            runOnUiThread(() -> onClick(finalAnsBtn));
+                        });
+                    });
+                });
+
+            });
         } else {
             // Say that the exercise is ended
             Phrase interactionPhrase = new Phrase("Ok the exercise is finished!");

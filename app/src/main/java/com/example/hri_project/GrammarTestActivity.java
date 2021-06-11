@@ -17,9 +17,14 @@ import com.aldebaran.qi.Future;
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
 import com.aldebaran.qi.sdk.RobotLifecycleCallbacks;
+import com.aldebaran.qi.sdk.builder.ListenBuilder;
+import com.aldebaran.qi.sdk.builder.PhraseSetBuilder;
 import com.aldebaran.qi.sdk.builder.SayBuilder;
 import com.aldebaran.qi.sdk.design.activity.RobotActivity;
+import com.aldebaran.qi.sdk.object.conversation.Listen;
+import com.aldebaran.qi.sdk.object.conversation.ListenResult;
 import com.aldebaran.qi.sdk.object.conversation.Phrase;
+import com.aldebaran.qi.sdk.object.conversation.PhraseSet;
 import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.locale.Language;
 import com.aldebaran.qi.sdk.object.locale.Locale;
@@ -29,12 +34,6 @@ import java.util.Random;
 
 
 public class GrammarTestActivity extends RobotActivity implements RobotLifecycleCallbacks {
-
-    // TODOs
-    // - make sure fade out listener does not interfere with fadein
-    // - add exercise number over total view
-    // - add a retry button in the score view?
-    // - make buttons fade in shortly after sentence
 
     private boolean test;
     private QiContext qiContext = null;
@@ -95,13 +94,14 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
             { 0, 3, 3, 1, 0 },
             { 1, 0, 3, 0, 2 }
     };
-    private final int buttonBackgroundColor = Color.GRAY;
+    private final int buttonBackgroundColor = 0xFF464141;
     private int level;
 
     private Integer[] affirmAnims;
     private Integer[] posAnims;
     private Integer[] negAnims;
 
+    private Future<ListenResult> listenResultFuture;
 
 
     @Override
@@ -129,7 +129,10 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
 
         for (int i = 0; i < choiceButtons.length; i++) {
             int finalI = i;
-            choiceButtons[i].setOnClickListener(v -> onUserChoice(finalI));
+            choiceButtons[i].setOnClickListener(v -> {
+                if (listenResultFuture != null) listenResultFuture.requestCancellation();
+                onUserChoice(finalI);
+            });
             choiceButtons[i].setVisibility(View.GONE);
         }
         sentenceView.setVisibility(View.GONE);
@@ -183,7 +186,6 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
 
     @Override
     public void onRobotFocusLost() {
-        //TODO what goes here?
         qiContext = null;
         Log.i("TAG", "focus lost");
     }
@@ -199,12 +201,49 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     private void showNextExerciseUi() {
         sentenceView.setText(sentences[level][progress][0] + "___" + sentences[level][progress][1]);
         fadeIn(sentenceView, fadeDuration);
-        //TODO wait a little
         for (int i = 0; i < choiceButtons.length; i++) {
             choiceButtons[i].setText(choices[level][progress][i]);
             choiceButtons[i].setBackgroundColor(buttonBackgroundColor);
             fadeIn(choiceButtons[i], fadeDuration);
         }
+
+        String ans1 = choices[level][progress][0];
+        String ans2 = choices[level][progress][1];
+        String ans3 = choices[level][progress][2];
+        String ans4 = choices[level][progress][3];
+
+        Future<PhraseSet> phraseSetFuture = PhraseSetBuilder.with(qiContext) // Create the builder using the QiContext.
+                .withTexts(ans1, ans2, ans3, ans4) // Add the phrases Pepper will listen to.
+                .buildAsync(); // Build the PhraseSet.
+
+        phraseSetFuture.andThenConsume(phraseSet -> {
+
+            // Create a new listen action.
+            Future<Listen> listenFuture = ListenBuilder.with(qiContext) // Create the builder with the QiContext.
+                    .withPhraseSets(phraseSet) // Set the PhraseSets to listen to.
+                    .withLocale(itLocale)
+                    .buildAsync(); // Build the listen actions
+
+            listenFuture.andThenConsume(listen -> {
+                // Run the listen action and get the result.
+                listenResultFuture = listen.async().run();
+
+                listenResultFuture.andThenConsume(listenResult -> {
+                    String ans = listenResult.getHeardPhrase().getText();
+                    ans = ans.replaceAll("\\s+","");
+                    Log.i("TAG", "student answered verbally: " + ans);
+                    int ansInt = -1;
+                    if (ans.equals(ans1)) ansInt = 0;
+                    else if (ans.equals(ans2)) ansInt = 1;
+                    else if (ans.equals(ans3)) ansInt = 2;
+                    else if (ans.equals(ans4)) ansInt = 3;
+                    int finalAnsInt = ansInt;
+                    if (ansInt >= 0) {
+                        runOnUiThread(() -> onUserChoice(finalAnsInt));
+                    }
+                });
+            });
+        });
     }
 
     private void hideExerciseUi() {
@@ -215,19 +254,18 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
     }
 
     private void showScoreUi() {
-        fadeOut(sentenceView, fadeDuration);
-        for (Button btn: choiceButtons) {
-            fadeOut(btn, fadeDuration);
-        }
-        if (score >= 3) {
-            sentenceView.setText("Score: " + score + "/" + sentences[level].length + ". You passed! Tap here to continue.");
-            sentenceView.setOnClickListener(v -> startConversationIntent());
-        } else {
-            sentenceView.setText("Score: " + score + "/" + sentences[level].length + ". Sorry, you failed. Tap here to go back.");
-            sentenceView.setOnClickListener(v -> startChooseLessonIntent());
-        }
-
-        fadeIn(sentenceView, fadeDuration);
+        // Visualize the results page
+        Intent grammarTestResultsIntent = new Intent(this, GrammarTestResults.class);
+        grammarTestResultsIntent.putExtra("nExercises", 5);
+        grammarTestResultsIntent.putExtra("correctAnswers", score);
+        grammarTestResultsIntent.putExtra("passed", (boolean)(score >= 3));
+        String levelStr = "";
+        if (level == 0) levelStr = "EASY";
+        else if (level == 1) levelStr = "MEDIUM";
+        else if (level == 1) levelStr = "HARD";
+        grammarTestResultsIntent.putExtra("level", levelStr);
+        grammarTestResultsIntent.putExtra("test", test);
+        startActivity(grammarTestResultsIntent);
     }
 
     private void restartExercises() {
@@ -259,7 +297,6 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
         int rnd = new Random().nextInt(feedbackAnims.length);
         Integer res = feedbackAnims[rnd];
         MainActivity.animateBuildAsync(res, qiContext);
-        //TODO how to stress the correct word?
         sayAsync(qiContext, feedback + ". The correct answer is", null,
                 () -> sayAsync(qiContext, correctSentence, itLocale, afterFeedback));
 
@@ -327,6 +364,15 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
             }
         });
     }
+
+    private static void listenAnswersAsync(QiContext qiContext, Locale locale,
+                                           String ans1, String ans2, String ans3, String ans4,
+                                           Runnable callback) {
+
+
+
+    }
+
 
     // from https://developer.android.com/training/animation/reveal-or-hide-view
 

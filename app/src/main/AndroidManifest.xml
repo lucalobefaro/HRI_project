@@ -18,6 +18,7 @@
         <activity android:name=".ConversationResultsActivity" />
         <activity android:name=".ObjectRecognitionResults" />
         <activity android:name=".ObjectRecognitionExercise" />
+        <activity android:name=".GrammarTestResults" />
 
         <!-- android:theme="@style/Theme.HRI_project" -->
         <activity android:name=".GrammarLesson"></activity>
