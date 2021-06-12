@@ -262,7 +262,7 @@ public class GrammarTestActivity extends RobotActivity implements RobotLifecycle
         String levelStr = "";
         if (level == 0) levelStr = "EASY";
         else if (level == 1) levelStr = "MEDIUM";
-        else if (level == 1) levelStr = "HARD";
+        else if (level == 2) levelStr = "HARD";
         grammarTestResultsIntent.putExtra("level", levelStr);
         grammarTestResultsIntent.putExtra("test", test);
         startActivity(grammarTestResultsIntent);
